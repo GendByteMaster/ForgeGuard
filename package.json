@@ -1,0 +1,38 @@
+{
+  "name": "@gendbytemaster/forgeguard",
+  "version": "1.1.0",
+  "description": "Portable engineering guardrails skill for coding agents",
+  "license": "MIT",
+  "type": "module",
+  "bin": {
+    "forgeguard": "bin/forgeguard.js"
+  },
+  "files": [
+    "bin/",
+    "engineering-guardrails/",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/GendByteMaster/ForgeGuard.git"
+  },
+  "bugs": {
+    "url": "https://github.com/GendByteMaster/ForgeGuard/issues"
+  },
+  "homepage": "https://github.com/GendByteMaster/ForgeGuard#readme",
+  "keywords": [
+    "agent-skills",
+    "codex",
+    "claude-code",
+    "cursor",
+    "guardrails",
+    "ai-agents"
+  ],
+  "publishConfig": {
+    "access": "public"
+  }
+}
