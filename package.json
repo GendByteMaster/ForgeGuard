@@ -1,6 +1,6 @@
 {
   "name": "@gendbytemaster/forgeguard",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "Portable engineering guardrails skill for coding agents",
   "license": "MIT",
   "type": "module",
