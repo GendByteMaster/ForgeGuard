@@ -13,27 +13,63 @@ jobs:
     name: CLI / Node ${{ matrix.node }}
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         node: [18, 20, 22]
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node }}
+
       - name: Show version
-        run: node bin/forgeguard.js --version
+        run: |
+          EXPECTED_VERSION="$(node -p "require('./package.json').version")"
+          ACTUAL_VERSION="$(node bin/forgeguard.js --version)"
+          test "$ACTUAL_VERSION" = "$EXPECTED_VERSION"
+
       - name: Dry-run install
         run: node bin/forgeguard.js install --dry-run
+
       - name: Install ForgeGuard
         run: node bin/forgeguard.js install
+
       - name: Check status
         run: node bin/forgeguard.js status
-      - name: Verify installed skill
+
+      - name: Verify installed skill and AGENTS integration
         run: |
+          set -euo pipefail
+          EXPECTED_VERSION="$(node -p "require('./package.json').version")"
+
           test -f .agents/skills/engineering-guardrails/SKILL.md
           test -f .claude/skills/engineering-guardrails/SKILL.md
-          grep -q 'version: "1.1.0"' .agents/skills/engineering-guardrails/SKILL.md
+          test -f AGENTS.md
+
+          grep -q "version: \"$EXPECTED_VERSION\"" .agents/skills/engineering-guardrails/SKILL.md
+          grep -q '<!-- forgeguard:managed-start -->' AGENTS.md
+          grep -q 'engineering-guardrails' AGENTS.md
+          grep -q '<!-- forgeguard:managed-end -->' AGENTS.md
+
+      - name: Reinstall idempotently
+        run: |
+          node bin/forgeguard.js install --force
+          test "$(grep -c '<!-- forgeguard:managed-start -->' AGENTS.md)" -eq 1
+          test "$(grep -c '<!-- forgeguard:managed-end -->' AGENTS.md)" -eq 1
+
       - name: Uninstall ForgeGuard
         run: node bin/forgeguard.js uninstall
+
+      - name: Verify uninstall cleanup
+        run: |
+          set -euo pipefail
+          test ! -e .agents/skills/engineering-guardrails
+          test ! -e .claude/skills/engineering-guardrails
+          if test -f AGENTS.md; then
+            ! grep -q '<!-- forgeguard:managed-start -->' AGENTS.md
+            ! grep -q '<!-- forgeguard:managed-end -->' AGENTS.md
+          fi
+
       - name: Pack npm artifact
         run: npm pack --dry-run
