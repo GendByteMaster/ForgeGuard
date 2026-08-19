@@ -1,0 +1,39 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  cli:
+    name: CLI / Node ${{ matrix.node }}
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node: [18, 20, 22]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+      - name: Show version
+        run: node bin/forgeguard.js --version
+      - name: Dry-run install
+        run: node bin/forgeguard.js install --dry-run
+      - name: Install ForgeGuard
+        run: node bin/forgeguard.js install
+      - name: Check status
+        run: node bin/forgeguard.js status
+      - name: Verify installed skill
+        run: |
+          test -f .agents/skills/engineering-guardrails/SKILL.md
+          test -f .claude/skills/engineering-guardrails/SKILL.md
+          grep -q 'version: "1.1.0"' .agents/skills/engineering-guardrails/SKILL.md
+      - name: Uninstall ForgeGuard
+        run: node bin/forgeguard.js uninstall
+      - name: Pack npm artifact
+        run: npm pack --dry-run
