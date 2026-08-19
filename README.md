@@ -2,25 +2,56 @@
 
 **ForgeGuard** is a portable engineering guardrails skill for coding agents.
 
+> Keep repository work deliberate, scoped, verifiable, and safe.
+
 - **Human name:** ForgeGuard
 - **Technical skill name:** `engineering-guardrails`
-- **Purpose:** keep repository work deliberate, repository-aware, verifiable, and safe
+- **Version:** `1.0.0`
+- **License:** MIT
 
-## What ForgeGuard does
+## Why ForgeGuard
 
-ForgeGuard adds a policy and workflow layer around repository changes. It helps an agent:
+Coding agents are increasingly capable of planning, editing, testing, delegating, and committing changes. The failure mode is no longer only "bad code" — it is uncontrolled workflow: ignoring repository instructions, expanding scope, delegating without approval, claiming checks that never ran, or generating commit summaries unsupported by the diff.
+
+ForgeGuard adds a reusable policy and workflow layer around repository changes.
+
+## What it does
+
+ForgeGuard helps an agent:
 
 - inspect repository instructions before changing code;
 - preserve project architecture, conventions, and tooling;
 - choose the least heavyweight workflow that fits the task;
-- integrate with GSD when GSD is actually available;
+- integrate with GSD only when GSD actually exists;
 - define measurable success criteria for substantial ambiguous work;
 - require explicit user approval before launching subagents;
 - keep implementation scoped to the requested outcome;
 - verify changes instead of claiming unexecuted checks succeeded;
 - derive Conventional Commit messages strictly from the actual diff.
 
-ForgeGuard is intentionally **not** a framework-specific coding skill. It does not assume Python, Rust, TypeScript, Next.js, FastAPI, Bevy, a database, CI provider, or deployment model.
+ForgeGuard is intentionally **not** framework-specific. It does not assume Python, Rust, TypeScript, Next.js, FastAPI, Bevy, a database, CI provider, repository host, or deployment model.
+
+## Architecture
+
+```text
+User task
+    │
+    ▼
+ForgeGuard
+    │
+    ├── repository discovery
+    ├── workflow selection
+    ├── goal gate
+    ├── subagent approval gate
+    ├── implementation discipline
+    ├── verification discipline
+    └── diff-grounded commit preparation
+            │
+            ▼
+     specialized tools/skills
+```
+
+ForgeGuard is a **guardrail/orchestration layer**, not a monolithic do-everything framework. Debugging, security, architecture, testing, GitHub operations, and other domain work should remain in specialized skills and tools.
 
 ## Structure
 
@@ -34,20 +65,84 @@ engineering-guardrails/
     └── subagent-policy.md
 ```
 
-## Install
+## Quick install
 
-Copy the complete `engineering-guardrails/` directory into a skills directory supported by your coding agent/client, for example:
+Clone ForgeGuard:
 
-```text
-.agents/skills/engineering-guardrails/
+```bash
+git clone https://github.com/GendByteMaster/ForgeGuard.git
+cd ForgeGuard
 ```
 
-For clients with their own skill directories, use the location supported by that client.
+### Codex
 
-## Design principle
+```bash
+mkdir -p .agents/skills
+cp -R engineering-guardrails .agents/skills/engineering-guardrails
+```
 
-ForgeGuard should remain a **guardrail/orchestration layer**, not grow into a monolithic do-everything skill. Specialized skills should handle debugging, architecture, testing, security, GitHub operations, and other domain-specific work while ForgeGuard controls workflow discipline around them.
+Invoke with:
+
+```text
+$engineering-guardrails
+```
+
+### Claude Code
+
+```bash
+mkdir -p .claude/skills
+cp -R engineering-guardrails .claude/skills/engineering-guardrails
+```
+
+Invoke with:
+
+```text
+/engineering-guardrails
+```
+
+### Cursor
+
+```bash
+mkdir -p .agents/skills
+cp -R engineering-guardrails .agents/skills/engineering-guardrails
+```
+
+You can also use `.cursor/skills/engineering-guardrails/`.
+
+Invoke with:
+
+```text
+/engineering-guardrails
+```
+
+See [Installation](docs/INSTALLATION.md) for project/global installation details and [Compatibility](docs/COMPATIBILITY.md) for client-specific notes.
+
+## Example
+
+```text
+Use ForgeGuard and fix the refresh-token race condition.
+```
+
+ForgeGuard should first inspect applicable repository instructions, choose a bug-investigation workflow, avoid unrelated refactoring, require explicit approval before any subagent delegation, run relevant verification, and report any checks that could not be completed.
+
+More scenarios: [Usage examples](examples/USAGE.md).
+
+## Core safety rule
+
+ForgeGuard never treats a recommendation from a planner, workflow, GSD, or another agent as permission to launch a subagent. Delegation requires explicit user approval in the current conversation.
+
+## Compatibility
+
+| Client | Status | Project path |
+|---|---|---|
+| OpenAI Codex | Supported | `.agents/skills/engineering-guardrails/` |
+| Claude Code | Supported | `.claude/skills/engineering-guardrails/` |
+| Cursor | Supported | `.agents/skills/engineering-guardrails/` or `.cursor/skills/engineering-guardrails/` |
+
+## Versioning
+
+ForgeGuard follows semantic versioning. See [CHANGELOG.md](CHANGELOG.md).
 
 ## License
 
-MIT License. See [`LICENSE`](LICENSE).
+MIT License. See [LICENSE](LICENSE).
