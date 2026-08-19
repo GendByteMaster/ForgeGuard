@@ -14,7 +14,7 @@ import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const SKILL_NAME = 'engineering-guardrails';
-const VERSION = '1.2.0';
+const VERSION = '1.3.0';
 const PACKAGE_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const SOURCE = join(PACKAGE_ROOT, SKILL_NAME);
 
@@ -192,7 +192,6 @@ function installAgentsIntegration(options) {
   const target = isNonEmptyFile(paths.override) ? paths.override : paths.regular;
   const other = target === paths.override ? paths.regular : paths.override;
 
-  // Keep the managed instruction in only the active Codex instruction file.
   removeManagedBlock(other, options.dryRun);
   ensureManagedBlock(target, options.dryRun);
 }
@@ -222,7 +221,7 @@ function uninstallAgentsIntegration(options) {
   const removedRegular = removeManagedBlock(paths.regular, options.dryRun);
 
   if (!removedOverride && !removedRegular) {
-    console.log(`skip     agents: no ForgeGuard managed block found`);
+    console.log('skip     agents: no ForgeGuard managed block found');
   }
 }
 
