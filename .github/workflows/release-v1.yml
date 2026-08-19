@@ -5,14 +5,11 @@ on:
     branches:
       - main
     paths:
+      - "package.json"
+      - "engineering-guardrails/SKILL.md"
       - "docs/releases/**"
       - ".github/workflows/release-v1.yml"
   workflow_dispatch:
-    inputs:
-      version:
-        description: "Optional release version without the v prefix (for example 1.1.0)"
-        required: false
-        type: string
 
 permissions:
   contents: write
@@ -29,13 +26,21 @@ jobs:
         with:
           node-version: 22
 
-      - name: Verify repository version
+      - name: Resolve and verify current version
         run: |
           set -euo pipefail
           PACKAGE_VERSION="$(node -p "require('./package.json').version")"
+          NOTES="docs/releases/v${PACKAGE_VERSION}.md"
+
           grep -q "version: \"$PACKAGE_VERSION\"" engineering-guardrails/SKILL.md
-          test -f "docs/releases/v${PACKAGE_VERSION}.md"
+          test -f "$NOTES"
+
+          TITLE="$(sed -n '1s/^# //p' "$NOTES")"
+          test -n "$TITLE"
+
           echo "VERSION=$PACKAGE_VERSION" >> "$GITHUB_ENV"
+          echo "NOTES=$NOTES" >> "$GITHUB_ENV"
+          echo "TITLE=$TITLE" >> "$GITHUB_ENV"
 
       - name: Synchronize v1.0.0 release notes
         env:
@@ -47,8 +52,6 @@ jobs:
               --repo "$GITHUB_REPOSITORY" \
               --title "ForgeGuard v1.0.0 — Initial Public Release" \
               --notes-file docs/releases/v1.0.0.md
-          else
-            echo "v1.0.0 does not exist; skipping historical release creation."
           fi
 
       - name: Create or update current release
@@ -57,18 +60,18 @@ jobs:
         run: |
           set -euo pipefail
           TAG="v${VERSION}"
-          NOTES="docs/releases/${TAG}.md"
-          TITLE="ForgeGuard ${TAG} — Risk Gate and CLI"
 
           if gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
             gh release edit "$TAG" \
               --repo "$GITHUB_REPOSITORY" \
               --title "$TITLE" \
-              --notes-file "$NOTES"
+              --notes-file "$NOTES" \
+              --latest
           else
             gh release create "$TAG" \
               --repo "$GITHUB_REPOSITORY" \
               --target "$GITHUB_SHA" \
               --title "$TITLE" \
-              --notes-file "$NOTES"
+              --notes-file "$NOTES" \
+              --latest
           fi
