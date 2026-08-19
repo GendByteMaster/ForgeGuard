@@ -2,7 +2,7 @@
 name: engineering-guardrails
 description: Apply reusable engineering workflow guardrails before and during repository changes. Use for implementation, bug fixes, refactors, substantial coding tasks, goal definition, delegation or subagent decisions, risky operations, and git diff or commit preparation. Adapts to the repository's existing workflow and uses GSD only when it is available.
 metadata:
-  version: "1.1.0"
+  version: "1.2.0"
   display_name: "ForgeGuard"
 ---
 
