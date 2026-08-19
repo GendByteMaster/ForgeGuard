@@ -2,7 +2,7 @@
 name: engineering-guardrails
 description: Apply reusable engineering workflow guardrails before and during repository changes. Use for implementation, bug fixes, refactors, substantial coding tasks, goal definition, delegation or subagent decisions, risky operations, and git diff or commit preparation. Adapts to the repository's existing workflow and uses GSD only when it is available.
 metadata:
-  version: "1.2.0"
+  version: "1.3.0"
   display_name: "ForgeGuard"
 ---
 
@@ -19,7 +19,7 @@ ForgeGuard is a universal engineering guardrails skill for keeping repository wo
 5. Never launch a subagent or delegate work to one without explicit user approval in the current conversation.
 6. Define measurable success criteria before substantial work when the outcome is ambiguous.
 7. Classify consequential operations with the Risk Gate before execution.
-8. Base commit summaries strictly on the actual diff.
+8. Base commit summaries strictly on the actual diff and always emit the mandatory structured Description defined by the commit policy.
 
 ## 1. Repository discovery
 
@@ -115,9 +115,11 @@ During code changes:
 
 ## 7. Git diff and commit preparation
 
-When the user asks to analyze a diff, prepare a commit, or generate a commit message, follow [references/commit-policy.md](references/commit-policy.md).
+When the user asks to analyze a diff, prepare a commit, generate a commit message, or summarize changes for a commit, follow [references/commit-policy.md](references/commit-policy.md).
 
-Key rule: infer only what the diff supports. Do not invent functionality, motivation, tests, risks, or breaking changes.
+The actual diff is the primary source of truth. ForgeGuard must classify the change, generate a Conventional Commit subject, and always emit the complete mandatory structured `Description` with Changes, Reason, Implementation Details, Impact / Risks, and Breaking Changes.
+
+Key rule: infer only what the diff or explicit task context supports. Do not invent functionality, motivation, tests, risks, verification, or breaking changes.
 
 ## 8. Completion
 
