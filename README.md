@@ -6,7 +6,7 @@
 
 - **Human name:** ForgeGuard
 - **Technical skill name:** `engineering-guardrails`
-- **Version:** `1.1.0`
+- **Version:** `1.2.0`
 - **License:** MIT
 
 ## Quick start with npx
@@ -16,6 +16,8 @@ Install ForgeGuard into the current repository for Codex, Claude Code, and Curso
 ```bash
 npx --yes github:GendByteMaster/ForgeGuard install
 ```
+
+For Codex, installation now also adds an idempotent ForgeGuard-managed block to the active repository instruction file (`AGENTS.md`, or `AGENTS.override.md` when that override is active). Start a new Codex session after installation so the updated instructions are loaded.
 
 Check installation:
 
@@ -37,6 +39,12 @@ Install globally for the current user:
 npx --yes github:GendByteMaster/ForgeGuard install --global
 ```
 
+Skip automatic Codex instruction integration when needed:
+
+```bash
+npx --yes github:GendByteMaster/ForgeGuard install --client codex --no-agents
+```
+
 After the npm package is published, the shorter registry command is:
 
 ```bash
@@ -46,10 +54,31 @@ npx @gendbytemaster/forgeguard install
 CLI commands:
 
 ```text
-forgeguard install [--client all|codex|claude|cursor] [--global] [--force] [--dry-run]
-forgeguard status [--client all|codex|claude|cursor] [--global]
-forgeguard uninstall [--client all|codex|claude|cursor] [--global] [--dry-run]
+forgeguard install [--client all|codex|claude|cursor] [--global] [--force] [--no-agents] [--dry-run]
+forgeguard status [--client all|codex|claude|cursor] [--global] [--no-agents]
+forgeguard uninstall [--client all|codex|claude|cursor] [--global] [--no-agents] [--dry-run]
 ```
+
+## Automatic Codex integration
+
+When Codex is one of the selected clients, `forgeguard install` manages a small marked block in the active Codex instruction file.
+
+Example:
+
+```md
+<!-- forgeguard:managed-start -->
+## ForgeGuard
+
+- Before repository implementation, bug fixes, refactors, migrations, security-sensitive changes, production changes, or commit preparation, load and apply the `engineering-guardrails` skill.
+- Follow ForgeGuard's Risk Gate and explicit subagent approval gate.
+- Keep repository-local instructions authoritative within their scope.
+- If the skill cannot be loaded, report that explicitly and continue with the repository's existing instructions; do not invent missing ForgeGuard policy.
+<!-- forgeguard:managed-end -->
+```
+
+The integration is idempotent: repeated installs update the same block instead of creating duplicates. `forgeguard uninstall` removes only the ForgeGuard-managed block and preserves unrelated repository instructions.
+
+For project-level installation ForgeGuard manages the instruction file in the current repository. For `--global`, it uses the Codex home directory (`$CODEX_HOME`, or `~/.codex` by default).
 
 ## Why ForgeGuard
 
@@ -76,8 +105,6 @@ ForgeGuard helps an agent:
 ForgeGuard is intentionally **not** framework-specific. It does not assume Python, Rust, TypeScript, Next.js, FastAPI, Bevy, a database, CI provider, repository host, or deployment model.
 
 ## Risk Gate
-
-ForgeGuard v1.1 adds a dedicated Risk Gate before consequential operations.
 
 | Level | Typical scope | Default behavior |
 |---|---|---|
@@ -109,90 +136,25 @@ ForgeGuard
      specialized tools/skills
 ```
 
-ForgeGuard is a **guardrail/orchestration layer**, not a monolithic do-everything framework. Debugging, security, architecture, testing, GitHub operations, and other domain work should remain in specialized skills and tools.
-
-## Structure
-
-```text
-engineering-guardrails/
-├── SKILL.md
-└── references/
-    ├── commit-policy.md
-    ├── goal-policy.md
-    ├── gsd-workflow.md
-    ├── risk-gate.md
-    └── subagent-policy.md
-```
-
-## Manual install
-
-Clone ForgeGuard:
-
-```bash
-git clone https://github.com/GendByteMaster/ForgeGuard.git
-cd ForgeGuard
-```
-
-### Codex
-
-```bash
-mkdir -p .agents/skills
-cp -R engineering-guardrails .agents/skills/engineering-guardrails
-```
-
-### Claude Code
-
-```bash
-mkdir -p .claude/skills
-cp -R engineering-guardrails .claude/skills/engineering-guardrails
-```
-
-### Cursor
-
-```bash
-mkdir -p .agents/skills
-cp -R engineering-guardrails .agents/skills/engineering-guardrails
-```
-
-See [Installation](docs/INSTALLATION.md) for project/global installation details and [Compatibility](docs/COMPATIBILITY.md) for client-specific notes.
-
-## Example
-
-```text
-Use ForgeGuard and fix the refresh-token race condition.
-```
-
-ForgeGuard should first inspect applicable repository instructions, choose a bug-investigation workflow, classify any consequential operations, avoid unrelated refactoring, require explicit approval before subagent delegation or Critical execution, run relevant verification, and report any checks that could not be completed.
-
-More scenarios: [Usage examples](examples/USAGE.md).
-
-## Core safety rules
-
-ForgeGuard never treats a recommendation from a planner, workflow, GSD, or another agent as permission to launch a subagent. Delegation requires explicit user approval in the current conversation.
-
-Critical destructive or irreversible production-impacting operations are also never executed automatically.
+ForgeGuard is a **guardrail/orchestration layer**, not a monolithic do-everything framework.
 
 ## Compatibility
 
 | Client | Status | Project path |
 |---|---|---|
-| OpenAI Codex | Supported | `.agents/skills/engineering-guardrails/` |
+| OpenAI Codex | Supported | `.agents/skills/engineering-guardrails/` + managed Codex instruction block |
 | Claude Code | Supported | `.claude/skills/engineering-guardrails/` |
 | Cursor | Supported | `.agents/skills/engineering-guardrails/` or `.cursor/skills/engineering-guardrails/` |
 
-## npm package
+See [Installation](docs/INSTALLATION.md), [Compatibility](docs/COMPATIBILITY.md), and [CHANGELOG.md](CHANGELOG.md).
 
-The repository root is an npm CLI package:
+## npm package
 
 ```text
 @gendbytemaster/forgeguard
 ```
 
-It has no runtime dependencies and requires Node.js 18 or newer. Until the registry package is published, use the GitHub package spec with `npx` as shown above.
-
-## Versioning
-
-ForgeGuard follows semantic versioning. See [CHANGELOG.md](CHANGELOG.md).
+The package has no runtime dependencies and requires Node.js 18 or newer.
 
 ## License
 
