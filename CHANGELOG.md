@@ -2,6 +2,23 @@
 
 All notable changes to ForgeGuard are documented here.
 
+## [1.3.0] - 2026-08-19
+
+### Added
+
+- Commit Intelligence for evidence-driven git diff analysis.
+- Mandatory structured commit `Description` for every prepared commit output.
+- Explicit `Changes`, `Reason`, `Implementation Details`, `Impact / Risks`, and `Breaking Changes` sections.
+- Detection of materially unrelated changes with guidance to split commits when appropriate.
+
+### Changed
+
+- Commit preparation now treats the real diff as the primary source of truth.
+- Commit subjects remain Conventional Commit based and are limited to 72 characters unless the repository is stricter.
+- `Reason` is emitted only when inferable from the diff or explicit task context; otherwise ForgeGuard states that the reason is not inferable.
+- Verification, security, compatibility, performance, deployment, and breaking-change claims require supporting evidence.
+- The mandatory `Description` can no longer be omitted even when the user requests only a commit message.
+
 ## [1.2.0] - 2026-08-19
 
 ### Added
