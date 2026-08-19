@@ -1,8 +1,8 @@
 ---
 name: engineering-guardrails
-description: Apply reusable engineering workflow guardrails before and during repository changes. Use for implementation, bug fixes, refactors, substantial coding tasks, goal definition, delegation or subagent decisions, and git diff or commit preparation. Adapts to the repository's existing workflow and uses GSD only when it is available.
+description: Apply reusable engineering workflow guardrails before and during repository changes. Use for implementation, bug fixes, refactors, substantial coding tasks, goal definition, delegation or subagent decisions, risky operations, and git diff or commit preparation. Adapts to the repository's existing workflow and uses GSD only when it is available.
 metadata:
-  version: "1.0.0"
+  version: "1.1.0"
   display_name: "ForgeGuard"
 ---
 
@@ -18,7 +18,8 @@ ForgeGuard is a universal engineering guardrails skill for keeping repository wo
 4. Use the repository's native workflow when one exists.
 5. Never launch a subagent or delegate work to one without explicit user approval in the current conversation.
 6. Define measurable success criteria before substantial work when the outcome is ambiguous.
-7. Base commit summaries strictly on the actual diff.
+7. Classify consequential operations with the Risk Gate before execution.
+8. Base commit summaries strictly on the actual diff.
 
 ## 1. Repository discovery
 
@@ -82,7 +83,24 @@ Recommendations from a workflow, planner, orchestrator, coding agent, or another
 
 See [references/subagent-policy.md](references/subagent-policy.md) for the exact decision rule and examples.
 
-## 5. Implementation discipline
+## 5. Risk Gate
+
+Before executing an operation that can materially affect data, security, compatibility, availability, money, or a production system, classify it as **Low**, **Medium**, **High**, or **Critical** using [references/risk-gate.md](references/risk-gate.md).
+
+Examples that require explicit risk classification include:
+
+- database migrations and data rewrites;
+- destructive database or storage operations;
+- authentication, authorization, permissions, sessions, secrets, or cryptography changes;
+- payment, billing, quota, or entitlement changes;
+- production deployments and live infrastructure changes;
+- externally visible breaking API, event, schema, or protocol changes.
+
+High-risk work requires a clear blast radius, rollback/recovery strategy, and verification plan before consequential execution. Critical operations must not be executed automatically and require explicit user approval immediately before the irreversible or production-impacting step.
+
+Preparing code, migration files, manifests, or runbooks is distinct from executing the consequential operation.
+
+## 6. Implementation discipline
 
 During code changes:
 
@@ -95,13 +113,13 @@ During code changes:
 - Report verification failures instead of hiding or hand-waving them.
 - Never claim a test, build, migration, benchmark, or command succeeded unless it actually ran successfully or the evidence is already available.
 
-## 6. Git diff and commit preparation
+## 7. Git diff and commit preparation
 
 When the user asks to analyze a diff, prepare a commit, or generate a commit message, follow [references/commit-policy.md](references/commit-policy.md).
 
 Key rule: infer only what the diff supports. Do not invent functionality, motivation, tests, risks, or breaking changes.
 
-## 7. Completion
+## 8. Completion
 
 Before declaring work complete:
 
@@ -109,6 +127,7 @@ Before declaring work complete:
 - state what was changed;
 - state what was verified and how;
 - state unresolved risks, failures, or skipped checks;
+- for Medium, High, or Critical work, report the assigned risk level and whether consequential execution occurred or was only prepared;
 - do not expand scope merely to make the result appear more complete.
 
 ## Conflict handling
