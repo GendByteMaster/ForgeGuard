@@ -2,6 +2,23 @@
 
 All notable changes to ForgeGuard are documented here.
 
+## [1.2.0] - 2026-08-19
+
+### Added
+
+- Automatic Codex instruction integration during `forgeguard install`.
+- Idempotent managed ForgeGuard block in the active `AGENTS.md` or `AGENTS.override.md` file.
+- Automatic cleanup of the managed block during `forgeguard uninstall` without deleting unrelated instructions.
+- `forgeguard status` reporting for AGENTS integration.
+- `--no-agents` flag to disable automatic instruction-file management.
+- Global Codex instruction support through `CODEX_HOME` (or `~/.codex` by default).
+
+### Behavior
+
+- If a non-empty `AGENTS.override.md` exists, ForgeGuard uses it because Codex gives it precedence over `AGENTS.md` in the same directory.
+- Project installation manages the current repository's instruction file; global installation manages the Codex home instruction file.
+- ForgeGuard tells the user to start a new Codex session after installation so the updated instructions are loaded.
+
 ## [1.1.0] - 2026-08-19
 
 ### Added
