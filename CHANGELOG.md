@@ -2,6 +2,25 @@
 
 All notable changes to ForgeGuard are documented here.
 
+## [1.4.0] - 2026-08-19
+
+### Added
+
+- Goal Intelligence for deciding when substantial work needs an explicit measurable goal.
+- Goal quality bar covering outcome, evidence, success threshold, scope boundaries, and stop/escalation conditions.
+- Quantification heuristics for bugs, tests, performance, quality, research/architecture, and operations.
+- Weak-goal detection for activity-only objectives such as "make progress" or "keep investigating".
+- Single-question clarification discipline when missing information can materially change the outcome or validator.
+- Portable existing-goal handling that reuses compatible active goal state without assuming specific goal-management tools.
+
+### Changed
+
+- The previous Goal Gate is now Goal Intelligence.
+- Routine tasks with clear acceptance criteria continue directly without unnecessary goal overhead.
+- Substantial ambiguous work is expected to use observable success criteria and explicit evidence before implementation.
+- The Codex managed instruction block now activates Goal Intelligence when substantial work lacks measurable success criteria.
+- CI and release workflows now accept both `master` and `main` after the repository branch rename.
+
 ## [1.3.0] - 2026-08-19
 
 ### Added

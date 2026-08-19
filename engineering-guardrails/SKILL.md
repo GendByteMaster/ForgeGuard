@@ -1,14 +1,14 @@
 ---
 name: engineering-guardrails
-description: Apply reusable engineering workflow guardrails before and during repository changes. Use for implementation, bug fixes, refactors, substantial coding tasks, goal definition, delegation or subagent decisions, risky operations, and git diff or commit preparation. Adapts to the repository's existing workflow and uses GSD only when it is available.
+description: Apply reusable engineering workflow guardrails before and during repository changes. Use for implementation, bug fixes, refactors, substantial coding tasks, measurable goal definition, delegation or subagent decisions, risky operations, verification, and git diff or commit preparation. Adapts to the repository's existing workflow and uses GSD only when it is available.
 metadata:
-  version: "1.3.0"
+  version: "1.4.0"
   display_name: "ForgeGuard"
 ---
 
 # ForgeGuard
 
-ForgeGuard is a universal engineering guardrails skill for keeping repository work deliberate, repository-aware, verifiable, and safe across different projects and coding agents.
+ForgeGuard is a universal engineering guardrails skill for keeping repository work deliberate, repository-aware, measurable, verifiable, and safe across different projects and coding agents.
 
 ## Core principles
 
@@ -17,7 +17,7 @@ ForgeGuard is a universal engineering guardrails skill for keeping repository wo
 3. Do not invent project requirements that are not supported by the task or repository.
 4. Use the repository's native workflow when one exists.
 5. Never launch a subagent or delegate work to one without explicit user approval in the current conversation.
-6. Define measurable success criteria before substantial work when the outcome is ambiguous.
+6. Use Goal Intelligence to make substantial ambiguous work measurable before implementation.
 7. Classify consequential operations with the Risk Gate before execution.
 8. Base commit summaries strictly on the actual diff and always emit the mandatory structured Description defined by the commit policy.
 
@@ -46,29 +46,37 @@ Use the repository's existing task or planning workflow. If none exists:
 
 - small, well-scoped change: inspect -> edit -> focused verification;
 - bug investigation: reproduce -> isolate cause -> fix -> regression verification;
-- substantial feature/refactor: define goal -> inspect dependencies -> plan -> implement incrementally -> verify acceptance criteria.
+- substantial feature/refactor: define measurable goal -> inspect dependencies -> plan -> implement incrementally -> verify acceptance criteria.
 
 Do not introduce GSD, a new task system, or persistent planning state merely because this skill supports them.
 
-## 3. Goal gate for substantial work
+## 3. Goal Intelligence
 
-Use a goal-definition step when either condition is true:
+Run a goal need-check when either condition is true:
 
-- the user explicitly asks for goal-backed/planned work; or
-- the task is substantial and success is not yet measurable.
+- the user explicitly asks for goal-backed, goal-definition, or goal-refinement work; or
+- the task is substantial and success is not yet honestly measurable.
 
-A valid goal should define:
+Do not force a goal onto routine work that already has clear acceptance criteria.
 
-- desired outcome;
-- in-scope work;
-- out-of-scope work;
+A strong goal defines:
+
+- concrete desired outcome;
+- relevant artifact/system/environment or user-visible target;
+- in-scope and out-of-scope boundaries when they matter;
 - completion evidence;
 - binary or quantitative success threshold;
 - stop or escalation conditions.
 
-If the current environment provides a goal-management skill or tools, follow [references/goal-policy.md](references/goal-policy.md). Otherwise keep the goal local to the current work; do not fabricate unavailable tools or persistent state.
+Prefer observable outcomes over activity descriptions. Weak goals such as "make progress", "improve things", or "keep investigating" must be sharpened before they are used to control substantial work.
 
-Do not create goal overhead for routine work with clear acceptance criteria unless the user explicitly requests it.
+Quantify success when the domain supports meaningful measurement. Examples include exact verification commands, latency/error/cost/coverage thresholds, bounded affected artifacts, repeated successful runs, reviewed cases, operational monitoring windows, or rollback triggers.
+
+Ask at most one concise clarification question when missing information can materially change the desired outcome, validator, environment, or scope. Otherwise use the strongest honest validator supported by repository context.
+
+When persistent goal-management capabilities exist, inspect and reuse compatible active goal state before creating another goal. Do not fabricate goal tools or durable planning state when the environment does not provide them.
+
+Follow [references/goal-policy.md](references/goal-policy.md) for the full Goal Intelligence policy and domain heuristics.
 
 ## 4. Subagent approval gate
 
@@ -126,6 +134,7 @@ Key rule: infer only what the diff or explicit task context supports. Do not inv
 Before declaring work complete:
 
 - compare the result against the user's request and defined acceptance criteria;
+- compare substantial goal-backed work against its success threshold and evidence requirements;
 - state what was changed;
 - state what was verified and how;
 - state unresolved risks, failures, or skipped checks;

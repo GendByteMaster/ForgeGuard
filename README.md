@@ -2,19 +2,19 @@
 
 **ForgeGuard** is a portable engineering guardrails skill for coding agents.
 
-> Keep agent-driven repository work deliberate, scoped, evidence-based, and safe.
+> Keep agent-driven repository work deliberate, scoped, measurable, evidence-based, and safe.
 
 - **Human name:** ForgeGuard
 - **Technical skill name:** `engineering-guardrails`
-- **Current version:** `1.3.0`
+- **Current version:** `1.4.0`
 - **License:** MIT
 - **Clients:** OpenAI Codex, Claude Code, Cursor
 
 ## What ForgeGuard is
 
-Coding agents can now inspect repositories, modify code, run tests, delegate work, prepare commits, change infrastructure, and operate production-facing systems.
+Coding agents can inspect repositories, modify code, run tests, delegate work, prepare commits, change infrastructure, and operate production-facing systems.
 
-The dangerous failure mode is therefore no longer only bad code. It is uncontrolled engineering workflow: expanding scope, ignoring repository constraints, delegating without permission, claiming verification that never happened, executing risky operations without a safety gate, or producing authoritative commit descriptions unsupported by the actual diff.
+The dangerous failure mode is therefore no longer only bad code. It is uncontrolled engineering workflow: vague objectives, expanding scope, ignored repository constraints, unauthorized delegation, unsupported verification claims, risky execution without a safety gate, or authoritative commit descriptions unsupported by the actual diff.
 
 ForgeGuard adds a reusable **guardrail and workflow layer** around repository work.
 
@@ -27,7 +27,7 @@ ForgeGuard provides:
 - repository-aware instruction discovery;
 - adaptive workflow selection;
 - optional GSD integration when GSD is actually present;
-- measurable Goal Gate for substantial ambiguous work;
+- **Goal Intelligence** for measurable substantial work;
 - explicit user approval before Subagent delegation;
 - **Low / Medium / High / Critical Risk Gate**;
 - scoped implementation discipline;
@@ -103,18 +103,7 @@ The npm package has no runtime dependencies and requires Node.js 18 or newer.
 
 When Codex is one of the selected clients, `forgeguard install` also manages a small ForgeGuard activation block in the active Codex repository instruction file.
 
-ForgeGuard uses explicit markers:
-
-```md
-<!-- forgeguard:managed-start -->
-## ForgeGuard
-
-- Before repository implementation, bug fixes, refactors, migrations, security-sensitive changes, production changes, or commit preparation, load and apply the `engineering-guardrails` skill.
-- Follow ForgeGuard's Risk Gate and explicit subagent approval gate.
-- Keep repository-local instructions authoritative within their scope.
-- If the skill cannot be loaded, report that explicitly and continue with the repository's existing instructions; do not invent missing ForgeGuard policy.
-<!-- forgeguard:managed-end -->
-```
+The managed block activates Goal Intelligence for substantial ambiguous work and requires the `engineering-guardrails` skill for repository implementation, risky operations, and commit preparation.
 
 The integration is idempotent:
 
@@ -126,6 +115,60 @@ The integration is idempotent:
 For `--global`, ForgeGuard uses `$CODEX_HOME` when configured or `~/.codex` by default for Codex instruction integration.
 
 After changing Codex instructions, start a **new Codex session** so the updated instructions are loaded.
+
+## Goal Intelligence — v1.4.0
+
+Goal Intelligence upgrades the previous Goal Gate into a measurable objective layer for substantial work.
+
+It begins with a **need check**. ForgeGuard should not create goal overhead for a routine task that already has clear acceptance criteria.
+
+When a goal is needed, it should define:
+
+```text
+Goal:
+- Outcome: what concrete result should be true
+- Success Criteria: binary or quantitative success threshold
+- Evidence: tests, commands, measurements, review, or observations
+- In Scope: allowed/required work
+- Out of Scope: boundaries that prevent accidental expansion
+- Stop / Escalate: when the agent must stop and ask instead of grinding
+```
+
+### Goal quality bar
+
+A usable goal should answer:
+
+1. What concrete result should exist when the work is done?
+2. What evidence will prove it?
+3. What binary or quantitative threshold defines success?
+4. What scope boundaries matter?
+5. What should cause the agent to stop or escalate?
+
+Activity-only objectives such as `make progress`, `improve things`, `keep investigating`, or `work on performance` are not sufficient for substantial goal-backed work.
+
+### Quantification
+
+ForgeGuard uses meaningful numbers when the domain supports them, for example:
+
+- exact test/typecheck/build/CI commands and required pass state;
+- latency, throughput, memory, bundle size, error rate, cost, accuracy, coverage, flake rate, or uptime thresholds;
+- required successful reruns or reviewed cases;
+- bounded files/modules/services/routes/records;
+- operational monitoring windows and rollback triggers.
+
+When meaningful quantification is unavailable, ForgeGuard uses the strongest honest binary validator instead of inventing precision.
+
+### Clarification discipline
+
+ForgeGuard asks at most one concise clarification question when missing information can materially change the outcome, validator, environment, or scope.
+
+If repository context safely resolves the ambiguity, it should sharpen the goal and continue instead of adding ceremony.
+
+### Existing goal state
+
+When persistent goal-management capabilities exist, ForgeGuard checks for compatible active goal state before creating another goal. It reuses matching goals, surfaces conflicts, and never fabricates goal APIs when the current agent does not provide them.
+
+See [`engineering-guardrails/references/goal-policy.md`](engineering-guardrails/references/goal-policy.md) for the complete Goal Intelligence policy and domain heuristics.
 
 ## Risk Gate
 
@@ -148,54 +191,13 @@ Delegation requires explicit user approval in the current conversation.
 
 Without that approval, the agent should continue the work itself whenever possible.
 
-## Commit Intelligence — v1.3.0
+## Commit Intelligence — v1.3.0+
 
-ForgeGuard v1.3.0 turns commit preparation into an evidence-driven engineering step.
+The actual `git diff` is the primary source of truth for commit preparation.
 
-The actual `git diff` is the primary source of truth.
-
-ForgeGuard determines the primary change type from the diff, including:
-
-- `feat` — new feature or capability;
-- `fix` — bug fix;
-- `refactor` — restructuring without intended behavior change;
-- `perf` — performance improvement;
-- `docs` — documentation-only change;
-- `style` — formatting/style-only change;
-- `test` — test-focused change;
-- `chore` — maintenance work.
-
-### Conventional Commit subject
-
-Preferred format:
+ForgeGuard determines the primary Conventional Commit change type and always emits a structured `Description` containing:
 
 ```text
-<type>(<scope>): <short summary>
-```
-
-When no meaningful scope can be inferred:
-
-```text
-<type>: <short summary>
-```
-
-Rules:
-
-- maximum 72 characters unless the repository defines a stricter limit;
-- imperative mood;
-- concise and specific wording;
-- scope only when supported by the affected module/service/package/domain;
-- no functionality, motivation, or impact invented beyond the available evidence.
-
-### Mandatory structured Description
-
-The `Description` section is mandatory whenever ForgeGuard prepares commit output, even when only a commit message was requested.
-
-Required shape:
-
-```text
-<type>(<scope>): <short summary>
-
 Description:
 - Changes:
   - ...
@@ -213,17 +215,9 @@ Description:
   - None
 ```
 
-If the reason cannot be inferred from the diff or supplied task context, ForgeGuard must say so instead of inventing intent:
+If the reason cannot be inferred from the diff or supplied task context, ForgeGuard says so instead of inventing intent. Verification, security, compatibility, performance, deployment, and breaking-change claims require supporting evidence.
 
-```text
-- Reason is not inferable from the diff alone.
-```
-
-ForgeGuard must also not claim that tests, builds, migrations, deployments, benchmarks, security improvements, compatibility guarantees, or performance improvements are verified without supporting evidence.
-
-If the diff contains materially unrelated changes, ForgeGuard should surface that and recommend splitting them into separate commits when appropriate.
-
-See [`engineering-guardrails/references/commit-policy.md`](engineering-guardrails/references/commit-policy.md) for the complete policy.
+See [`engineering-guardrails/references/commit-policy.md`](engineering-guardrails/references/commit-policy.md) for the full commit policy.
 
 ## Workflow model
 
@@ -235,7 +229,7 @@ ForgeGuard
     │
     ├── repository discovery
     ├── workflow selection
-    ├── goal gate
+    ├── goal intelligence
     ├── subagent approval gate
     ├── risk gate
     ├── implementation discipline
@@ -248,7 +242,7 @@ ForgeGuard
 
 ForgeGuard is a **guardrail/orchestration layer**, not a monolithic do-everything framework.
 
-Debugging, security analysis, architecture, testing, deployment, GitHub operations, and other domain-specific work should remain in specialized skills and tools while ForgeGuard governs scope, workflow, approvals, verification, and evidence quality.
+Debugging, security analysis, architecture, testing, deployment, GitHub operations, and other domain-specific work should remain in specialized skills and tools while ForgeGuard governs goals, scope, workflow, approvals, verification, risk, and evidence quality.
 
 ## Skill structure
 
@@ -277,10 +271,11 @@ See:
 - [Compatibility notes](docs/COMPATIBILITY.md)
 - [Usage examples](examples/USAGE.md)
 - [Changelog](CHANGELOG.md)
-- [v1.3.0 release notes](docs/releases/v1.3.0.md)
+- [v1.4.0 release notes](docs/releases/v1.4.0.md)
 
 ## Version history
 
+- **v1.4.0 — Goal Intelligence**: measurable goals, evidence, quantification, scope, and stop conditions.
 - **v1.3.0 — Commit Intelligence**: mandatory structured diff-grounded commit analysis.
 - **v1.2.0 — Automatic Codex Integration**: managed Codex instruction activation.
 - **v1.1.0 — Risk Gate and CLI**: risk classification and npm/npx installer.

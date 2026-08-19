@@ -14,7 +14,7 @@ import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const SKILL_NAME = 'engineering-guardrails';
-const VERSION = '1.3.0';
+const VERSION = '1.4.0';
 const PACKAGE_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const SOURCE = join(PACKAGE_ROOT, SKILL_NAME);
 
@@ -23,6 +23,7 @@ const AGENTS_END = '<!-- forgeguard:managed-end -->';
 const AGENTS_BLOCK = `${AGENTS_START}
 ## ForgeGuard
 
+- Before substantial ambiguous work, use ForgeGuard Goal Intelligence to define measurable success when needed.
 - Before repository implementation, bug fixes, refactors, migrations, security-sensitive changes, production changes, or commit preparation, load and apply the \`${SKILL_NAME}\` skill.
 - Follow ForgeGuard's Risk Gate and explicit subagent approval gate.
 - Keep repository-local instructions authoritative within their scope.
