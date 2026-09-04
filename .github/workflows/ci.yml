@@ -23,6 +23,9 @@ jobs:
         with:
           node-version: ${{ matrix.node }}
 
+      - name: Run tests
+        run: npm test
+
       - name: Show version
         run: |
           EXPECTED_VERSION="$(node -p "require('./package.json').version")"
@@ -35,10 +38,13 @@ jobs:
       - name: Install ForgeGuard
         run: node bin/forgeguard.js install
 
+      - name: Configure Codex subagents
+        run: node bin/forgeguard.js install --client codex --subagents --force
+
       - name: Check status
         run: node bin/forgeguard.js status
 
-      - name: Verify installed skill and AGENTS integration
+      - name: Verify installed skill, AGENTS integration, and Codex runtime
         run: |
           set -euo pipefail
           EXPECTED_VERSION="$(node -p "require('./package.json').version")"
@@ -46,17 +52,24 @@ jobs:
           test -f .agents/skills/engineering-guardrails/SKILL.md
           test -f .claude/skills/engineering-guardrails/SKILL.md
           test -f AGENTS.md
+          test -f .codex/config.toml
 
           grep -q "version: \"$EXPECTED_VERSION\"" .agents/skills/engineering-guardrails/SKILL.md
           grep -q '<!-- forgeguard:managed-start -->' AGENTS.md
           grep -q 'engineering-guardrails' AGENTS.md
           grep -q '<!-- forgeguard:managed-end -->' AGENTS.md
+          grep -q 'forgeguard:subagents-managed-start' .codex/config.toml
+          grep -q 'default_subagent_model = "gpt-5.6-luna"' .codex/config.toml
+          grep -q 'default_subagent_reasoning_effort = "xhigh"' .codex/config.toml
+          grep -q 'forgeguard:subagents-managed-end' .codex/config.toml
 
       - name: Reinstall idempotently
         run: |
-          node bin/forgeguard.js install --force
+          node bin/forgeguard.js install --client codex --subagents --force
           test "$(grep -c '<!-- forgeguard:managed-start -->' AGENTS.md)" -eq 1
           test "$(grep -c '<!-- forgeguard:managed-end -->' AGENTS.md)" -eq 1
+          test "$(grep -c 'forgeguard:subagents-managed-start' .codex/config.toml)" -eq 1
+          test "$(grep -c 'forgeguard:subagents-managed-end' .codex/config.toml)" -eq 1
 
       - name: Uninstall ForgeGuard
         run: node bin/forgeguard.js uninstall
@@ -66,6 +79,7 @@ jobs:
           set -euo pipefail
           test ! -e .agents/skills/engineering-guardrails
           test ! -e .claude/skills/engineering-guardrails
+          test ! -e .codex/config.toml
           if test -f AGENTS.md; then
             ! grep -q '<!-- forgeguard:managed-start -->' AGENTS.md
             ! grep -q '<!-- forgeguard:managed-end -->' AGENTS.md

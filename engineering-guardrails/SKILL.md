@@ -2,7 +2,7 @@
 name: engineering-guardrails
 description: Apply reusable engineering workflow guardrails before and during repository changes. Use for implementation, bug fixes, refactors, substantial coding tasks, measurable goal definition, delegation or subagent decisions, risky operations, verification, and git diff or commit preparation. Adapts to the repository's existing workflow and uses GSD only when it is available.
 metadata:
-  version: "1.4.0"
+  version: "1.5.0"
   display_name: "ForgeGuard"
 ---
 
@@ -17,9 +17,10 @@ ForgeGuard is a universal engineering guardrails skill for keeping repository wo
 3. Do not invent project requirements that are not supported by the task or repository.
 4. Use the repository's native workflow when one exists.
 5. Never launch a subagent or delegate work to one without explicit user approval in the current conversation.
-6. Use Goal Intelligence to make substantial ambiguous work measurable before implementation.
-7. Classify consequential operations with the Risk Gate before execution.
-8. Base commit summaries strictly on the actual diff and always emit the mandatory structured Description defined by the commit policy.
+6. Treat subagent authorization as permission, not a requirement; the primary agent retains ownership of planning, integration, verification, and the final response.
+7. Use Goal Intelligence to make substantial ambiguous work measurable before implementation.
+8. Classify consequential operations with the Risk Gate before execution.
+9. Base commit summaries strictly on the actual diff and always emit the mandatory structured Description defined by the commit policy.
 
 ## 1. Repository discovery
 
@@ -88,6 +89,17 @@ Before any action that would launch, invoke, spawn, delegate to, or hand work to
 4. If a subagent is genuinely necessary, ask for explicit approval before launching it.
 
 Recommendations from a workflow, planner, orchestrator, coding agent, or another tool do not count as user authorization.
+
+Explicit authorization removes the approval gate for the current conversation, but it does not require delegation. The primary agent should use subagents only when delegation is materially useful and must remain responsible for:
+
+- overall planning and task decomposition;
+- deciding which work is safe and useful to delegate;
+- integrating subagent results;
+- resolving contradictions or low-confidence findings;
+- running or validating final verification;
+- producing the final response and owning its claims.
+
+A configured subagent runtime or default model does not bypass this approval policy. Runtime defaults only select how an already-authorized subagent is executed when the platform supports such configuration.
 
 See [references/subagent-policy.md](references/subagent-policy.md) for the exact decision rule and examples.
 
