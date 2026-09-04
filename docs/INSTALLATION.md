@@ -48,6 +48,68 @@ Replace an existing installation:
 npx --yes github:GendByteMaster/ForgeGuard install --force
 ```
 
+## Codex subagent runtime preset — v1.5.0+
+
+ForgeGuard can optionally configure Codex runtime defaults for authorized subagents.
+
+Enable the default project-level preset:
+
+```bash
+npx --yes github:GendByteMaster/ForgeGuard install --client codex --subagents
+```
+
+The default preset is:
+
+```toml
+[agents]
+enabled = true
+default_subagent_model = "gpt-5.6-luna"
+default_subagent_reasoning_effort = "xhigh"
+```
+
+Project-level runtime configuration is written to:
+
+```text
+./.codex/config.toml
+```
+
+For a global Codex preset:
+
+```bash
+npx --yes github:GendByteMaster/ForgeGuard install --client codex --global --subagents
+```
+
+Global runtime configuration is written to `$CODEX_HOME/config.toml`, or `~/.codex/config.toml` when `CODEX_HOME` is not set.
+
+A normal ForgeGuard install does **not** change Codex subagent runtime settings. Runtime configuration is applied only when `--subagents`, `--subagent-model`, or `--subagent-reasoning` is explicitly supplied.
+
+### Custom subagent defaults
+
+Override the model or reasoning effort explicitly:
+
+```bash
+forgeguard install \
+  --client codex \
+  --subagent-model gpt-5.6-luna \
+  --subagent-reasoning xhigh
+```
+
+`--subagents` is a convenience preset for `gpt-5.6-luna` with `xhigh` reasoning.
+
+### Safe config management
+
+ForgeGuard manages only its own marked block in the top-level `[agents]` table. It preserves unrelated Codex settings and custom `[agents.<role>]` tables.
+
+ForgeGuard refuses to overwrite unmanaged conflicting `default_subagent_model`, `default_subagent_reasoning_effort`, or `enabled = false` values. Resolve those settings manually before enabling the managed preset.
+
+`forgeguard uninstall` removes the ForgeGuard-managed subagent runtime block. Use `--no-subagent-config` when uninstalling the skill but intentionally keeping the managed Codex runtime block.
+
+### Authorization semantics
+
+Runtime configuration does not bypass ForgeGuard's manual approval gate.
+
+If the user says that subagents may be used, that grants permission to delegate when useful. It does not require the primary agent to spawn a subagent. The primary agent remains responsible for planning, integration, conflict resolution, verification, and the final response.
+
 ## npm registry commands
 
 After `@gendbytemaster/forgeguard` is published to the npm registry:
@@ -69,21 +131,21 @@ The package requires Node.js 18 or newer and has no runtime dependencies.
 
 ### Project level
 
-| Client | Path |
-|---|---|
-| Codex | `.agents/skills/engineering-guardrails/` |
-| Claude Code | `.claude/skills/engineering-guardrails/` |
-| Cursor | `.agents/skills/engineering-guardrails/` |
+| Client | Skill path | Optional runtime config |
+|---|---|---|
+| Codex | `.agents/skills/engineering-guardrails/` | `.codex/config.toml` with explicit subagent options |
+| Claude Code | `.claude/skills/engineering-guardrails/` | Not managed by ForgeGuard v1.5.0 |
+| Cursor | `.agents/skills/engineering-guardrails/` | Not managed by ForgeGuard v1.5.0 |
 
 When `--client all` is used, Codex and Cursor share the same `.agents/skills` copy, so the CLI avoids duplicating those files. Claude Code receives its own `.claude/skills` copy.
 
 ### User level (`--global`)
 
-| Client | Path |
-|---|---|
-| Codex | `~/.agents/skills/engineering-guardrails/` |
-| Claude Code | `~/.claude/skills/engineering-guardrails/` |
-| Cursor | `~/.cursor/skills/engineering-guardrails/` |
+| Client | Skill path | Optional runtime config |
+|---|---|---|
+| Codex | `~/.agents/skills/engineering-guardrails/` | `$CODEX_HOME/config.toml` or `~/.codex/config.toml` |
+| Claude Code | `~/.claude/skills/engineering-guardrails/` | Not managed by ForgeGuard v1.5.0 |
+| Cursor | `~/.cursor/skills/engineering-guardrails/` | Not managed by ForgeGuard v1.5.0 |
 
 ## Manual project-level installation
 
@@ -93,6 +155,8 @@ When `--client all` is used, Codex and Cursor share the same `.agents/skills` co
 mkdir -p .agents/skills
 cp -R /path/to/ForgeGuard/engineering-guardrails .agents/skills/engineering-guardrails
 ```
+
+Manual skill installation does not configure the optional Codex subagent runtime preset. Use the ForgeGuard CLI for managed `.codex/config.toml` integration.
 
 ### Claude Code
 
@@ -116,6 +180,12 @@ cd ForgeGuard
 node bin/forgeguard.js install
 ```
 
+Enable the Codex Luna/xhigh preset from a clone:
+
+```bash
+node bin/forgeguard.js install --client codex --subagents
+```
+
 ## CLI reference
 
 ```text
@@ -130,12 +200,19 @@ Options:
 --client <all|codex|claude|cursor>
 --global
 --force
+--no-agents
+--subagents
+--subagent-model <model>
+--subagent-reasoning <effort>
+--no-subagent-config
 --dry-run
 --help
 --version
 ```
 
-## Verify discovery
+Subagent runtime options require Codex to be among the selected clients.
+
+## Verify discovery and runtime configuration
 
 After installation:
 
@@ -144,7 +221,9 @@ After installation:
 3. Ask for a repository task such as a bug fix or refactor.
 4. Confirm that ForgeGuard first inspects repository instructions.
 5. Confirm that it does not launch a subagent without explicit approval.
-6. For consequential operations, confirm that it assigns a Risk Gate classification before execution.
+6. If `--subagents` was used, run `forgeguard status --client codex` and confirm the managed model is `gpt-5.6-luna` with `xhigh` reasoning.
+7. Give the primary agent explicit permission to use subagents and confirm that delegation remains optional rather than mandatory.
+8. For consequential operations, confirm that ForgeGuard assigns a Risk Gate classification before execution.
 
 ## Official documentation
 
