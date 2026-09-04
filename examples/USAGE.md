@@ -83,7 +83,97 @@ Use ForgeGuard. You may launch a subagent for the security review.
 
 ForgeGuard may delegate that approved scope if the environment supports subagents. Approval for one delegated task must not silently become blanket approval for unrelated delegation.
 
-## 7. Commit preparation
+Authorization means **permission**, not a requirement to delegate. For a trivial task, the primary agent may still complete the work directly.
+
+## 7. Sol primary agent with Luna/xhigh workers
+
+First configure the Codex runtime preset:
+
+```bash
+forgeguard install --client codex --subagents
+```
+
+This manages the following defaults:
+
+```toml
+[agents]
+enabled = true
+default_subagent_model = "gpt-5.6-luna"
+default_subagent_reasoning_effort = "xhigh"
+```
+
+Then a user can give a task to a primary agent such as Sol:
+
+```text
+Use ForgeGuard. Audit the authentication flow, fix the important problems,
+and verify the result. You may use subagents.
+```
+
+A valid execution model is:
+
+```text
+GPT-5.6 Sol — primary agent
+├── Luna xhigh — inspect authentication architecture
+├── Luna xhigh — review tests and regression risks
+├── Luna xhigh — perform a bounded security review
+└── Sol — integrate findings, implement/approve changes, verify, and answer
+```
+
+The exact number of subagents is not prescribed. Sol may use zero, one, or several workers depending on the task and available runtime capabilities.
+
+The primary agent remains responsible for:
+
+- deciding whether delegation is useful;
+- assigning bounded scopes;
+- resolving conflicting subagent findings;
+- integrating the final implementation;
+- running or evaluating final verification;
+- producing the final response to the user.
+
+The Luna/xhigh preset does not change the primary model and does not bypass the explicit authorization gate.
+
+## 8. Custom Codex subagent runtime
+
+The default preset can be overridden:
+
+```bash
+forgeguard install \
+  --client codex \
+  --subagent-model gpt-5.6-luna \
+  --subagent-reasoning xhigh
+```
+
+ForgeGuard applies these as subagent defaults only. If the Codex runtime does not support a configured value, ForgeGuard should surface the incompatibility rather than silently substituting a different model.
+
+## 9. Checking runtime status
+
+After enabling the preset:
+
+```bash
+forgeguard status --client codex
+```
+
+Expected runtime information includes the managed config path, the configured subagent model, and the reasoning effort.
+
+A normal install without subagent flags should not create or modify the Codex runtime preset.
+
+## 10. Safe uninstall
+
+Remove ForgeGuard and its managed Codex runtime block:
+
+```bash
+forgeguard uninstall --client codex
+```
+
+Keep the managed Codex runtime block while uninstalling the skill/instruction integration:
+
+```bash
+forgeguard uninstall --client codex --no-subagent-config
+```
+
+Unrelated `.codex/config.toml` settings and custom `[agents.<role>]` tables must remain untouched.
+
+## 11. Commit preparation
 
 User:
 
@@ -99,7 +189,7 @@ Expected behavior:
 4. Include only changes, reasons, risks, tests, and breaking changes that are supported by evidence.
 5. Never claim tests passed unless that evidence is available.
 
-## 8. Verification failure
+## 12. Verification failure
 
 If implementation succeeds but the test suite fails for a real reason, ForgeGuard should report the failure rather than presenting the task as fully verified.
 
