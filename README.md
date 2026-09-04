@@ -6,7 +6,7 @@
 
 - **Human name:** ForgeGuard
 - **Technical skill name:** `engineering-guardrails`
-- **Current version:** `1.4.0`
+- **Current version:** `1.5.0`
 - **License:** MIT
 - **Clients:** OpenAI Codex, Claude Code, Cursor
 
@@ -29,6 +29,8 @@ ForgeGuard provides:
 - optional GSD integration when GSD is actually present;
 - **Goal Intelligence** for measurable substantial work;
 - explicit user approval before Subagent delegation;
+- optional **Codex Subagent Runtime** defaults with Luna + xhigh;
+- primary-agent ownership after delegation is authorized;
 - **Low / Medium / High / Critical Risk Gate**;
 - scoped implementation discipline;
 - evidence-based verification rules;
@@ -71,16 +73,58 @@ npx --yes github:GendByteMaster/ForgeGuard install --client claude
 npx --yes github:GendByteMaster/ForgeGuard install --client cursor
 ```
 
+### Configure Codex subagents: Luna + Extra High
+
+ForgeGuard does not change Codex runtime defaults during a normal install. Enable the optional preset explicitly:
+
+```bash
+npx --yes github:GendByteMaster/ForgeGuard install --client codex --subagents
+```
+
+The preset manages the following values in the project `.codex/config.toml`:
+
+```toml
+[agents]
+enabled = true
+default_subagent_model = "gpt-5.6-luna"
+default_subagent_reasoning_effort = "xhigh"
+```
+
+You can override either default:
+
+```bash
+npx --yes github:GendByteMaster/ForgeGuard install \
+  --client codex \
+  --subagent-model gpt-5.6-luna \
+  --subagent-reasoning xhigh
+```
+
+ForgeGuard writes only its own managed block. Existing unmanaged subagent defaults are not overwritten automatically, and `uninstall` removes only ForgeGuard-managed values.
+
+The runtime preset does **not** authorize delegation. The explicit Subagent approval policy still applies.
+
 ### Global installation
 
 ```bash
 npx --yes github:GendByteMaster/ForgeGuard install --global
 ```
 
+To configure the global Codex runtime preset in `$CODEX_HOME/config.toml` (or `~/.codex/config.toml`):
+
+```bash
+npx --yes github:GendByteMaster/ForgeGuard install --client codex --global --subagents
+```
+
 ### Skip Codex instruction integration
 
 ```bash
 npx --yes github:GendByteMaster/ForgeGuard install --client codex --no-agents
+```
+
+### Keep Codex runtime config during uninstall
+
+```bash
+npx --yes github:GendByteMaster/ForgeGuard uninstall --client codex --no-subagent-config
 ```
 
 After publication to the npm registry, the shorter registry form is:
@@ -92,18 +136,64 @@ npx @gendbytemaster/forgeguard install
 ## CLI
 
 ```text
-forgeguard install   [--client all|codex|claude|cursor] [--global] [--force] [--no-agents] [--dry-run]
+forgeguard install   [--client all|codex|claude|cursor] [--global] [--force] [--no-agents]
+                     [--subagents] [--subagent-model MODEL] [--subagent-reasoning EFFORT]
+                     [--no-subagent-config] [--dry-run]
 forgeguard status    [--client all|codex|claude|cursor] [--global] [--no-agents]
-forgeguard uninstall [--client all|codex|claude|cursor] [--global] [--no-agents] [--dry-run]
+                     [--no-subagent-config]
+forgeguard uninstall [--client all|codex|claude|cursor] [--global] [--no-agents]
+                     [--no-subagent-config] [--dry-run]
 ```
 
 The npm package has no runtime dependencies and requires Node.js 18 or newer.
+
+## Codex Subagent Runtime — v1.5.0
+
+ForgeGuard can configure Codex runtime defaults without becoming a custom agent orchestrator.
+
+When `--subagents` is enabled, ForgeGuard configures Luna with Extra High reasoning by default:
+
+```text
+Primary agent: whatever model the user selected, for example GPT-5.6 Sol
+Subagents:     gpt-5.6-luna
+Reasoning:     xhigh
+```
+
+The intended behavior is:
+
+```text
+User task
+    │
+    ├── explicit permission to use subagents
+    ▼
+Primary agent (for example Sol)
+    │
+    ├── decides whether delegation is useful
+    ├── delegates bounded work when useful
+    │       ├── Luna xhigh worker
+    │       └── Luna xhigh reviewer
+    ├── integrates results
+    ├── resolves contradictions
+    ├── performs/finalizes verification
+    ▼
+Final response owned by the primary agent
+```
+
+**Authorization is permission, not an obligation.** A small task may still be handled entirely by the primary agent even when the user says that subagents may be used.
+
+ForgeGuard treats existing user configuration conservatively:
+
+- unrelated `.codex/config.toml` settings are preserved;
+- custom `[agents.<role>]` subtables are preserved;
+- unmanaged `default_subagent_model` and `default_subagent_reasoning_effort` are not overwritten;
+- unmanaged `enabled = false` is treated as a conflict instead of being silently changed;
+- uninstall removes only the ForgeGuard-managed block.
 
 ## Automatic Codex integration
 
 When Codex is one of the selected clients, `forgeguard install` also manages a small ForgeGuard activation block in the active Codex repository instruction file.
 
-The managed block activates Goal Intelligence for substantial ambiguous work and requires the `engineering-guardrails` skill for repository implementation, risky operations, and commit preparation.
+The managed block activates Goal Intelligence for substantial ambiguous work, requires the `engineering-guardrails` skill for repository implementation, risky operations, and commit preparation, and preserves primary-agent ownership when delegation is authorized.
 
 The integration is idempotent:
 
@@ -185,11 +275,13 @@ The Risk Gate distinguishes **preparation** from **execution**. ForgeGuard may p
 
 ## Explicit Subagent approval
 
-ForgeGuard never treats a planner, workflow, GSD recommendation, coding agent, orchestrator, or tool suggestion as authorization to launch a Subagent.
+ForgeGuard never treats a planner, workflow, GSD recommendation, coding agent, orchestrator, runtime preset, or tool suggestion as authorization to launch a Subagent.
 
 Delegation requires explicit user approval in the current conversation.
 
 Without that approval, the agent should continue the work itself whenever possible.
+
+With approval, the primary agent may delegate when useful, but remains responsible for planning, integration, verification, and the final response.
 
 ## Commit Intelligence — v1.3.0+
 
@@ -231,6 +323,7 @@ ForgeGuard
     ├── workflow selection
     ├── goal intelligence
     ├── subagent approval gate
+    ├── optional Codex subagent runtime defaults
     ├── risk gate
     ├── implementation discipline
     ├── verification discipline
@@ -261,7 +354,7 @@ engineering-guardrails/
 
 | Client | Status | Project installation |
 |---|---|---|
-| OpenAI Codex | Supported | `.agents/skills/engineering-guardrails/` + managed Codex instruction block |
+| OpenAI Codex | Supported | `.agents/skills/engineering-guardrails/` + managed Codex instruction block + optional `.codex/config.toml` runtime preset |
 | Claude Code | Supported | `.claude/skills/engineering-guardrails/` |
 | Cursor | Supported | `.agents/skills/engineering-guardrails/` or `.cursor/skills/engineering-guardrails/` |
 
@@ -271,10 +364,11 @@ See:
 - [Compatibility notes](docs/COMPATIBILITY.md)
 - [Usage examples](examples/USAGE.md)
 - [Changelog](CHANGELOG.md)
-- [v1.4.0 release notes](docs/releases/v1.4.0.md)
+- [v1.5.0 release notes](docs/releases/v1.5.0.md)
 
 ## Version history
 
+- **v1.5.0 — Codex Subagent Runtime**: optional Luna/xhigh defaults, safe TOML management, and primary-agent ownership.
 - **v1.4.0 — Goal Intelligence**: measurable goals, evidence, quantification, scope, and stop conditions.
 - **v1.3.0 — Commit Intelligence**: mandatory structured diff-grounded commit analysis.
 - **v1.2.0 — Automatic Codex Integration**: managed Codex instruction activation.

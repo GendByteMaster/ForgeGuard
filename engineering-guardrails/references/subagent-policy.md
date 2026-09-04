@@ -13,6 +13,7 @@ Examples of sufficient authorization include:
 - "Launch the subagent."
 - "Run the subagent."
 - "Use a subagent."
+- "You may use subagents."
 - "I approve launching the subagent."
 
 Equivalent explicit wording in any language is valid.
@@ -25,6 +26,21 @@ The following are not authorization:
 - the fact that delegation would be faster;
 - approval from a previous conversation;
 - silence or implied consent.
+
+## Authorization semantics
+
+Explicit approval means subagents may be used when they are materially useful. It does not require the primary agent to delegate work.
+
+The primary agent remains responsible for:
+
+- the overall plan and decomposition;
+- deciding whether delegation is useful;
+- integrating subagent results;
+- resolving conflicts between subagents;
+- final verification;
+- the final response and its claims.
+
+A configured runtime default, model preset, or orchestration feature does not count as approval and does not bypass this policy.
 
 ## Required behavior when not authorized
 

@@ -2,6 +2,31 @@
 
 All notable changes to ForgeGuard are documented here.
 
+## [1.5.0] - 2026-09-04
+
+### Added
+
+- Optional Codex subagent runtime configuration through `forgeguard install --subagents`.
+- Default ForgeGuard Codex preset: `gpt-5.6-luna` with `xhigh` reasoning.
+- `--subagent-model` and `--subagent-reasoning` overrides for explicit runtime selection.
+- Project-level `.codex/config.toml` and global `$CODEX_HOME/config.toml` support.
+- ForgeGuard-managed TOML blocks that preserve unrelated Codex configuration and custom agent subtables.
+- Runtime status reporting for managed Codex subagent configuration.
+- Built-in Node tests covering config creation, preservation, conflicts, idempotency, status, and uninstall cleanup.
+
+### Changed
+
+- Subagent authorization is now explicitly defined as permission rather than an obligation to delegate.
+- The primary agent remains responsible for planning, delegation decisions, integration, conflict resolution, final verification, and the final response.
+- `forgeguard uninstall` removes only ForgeGuard-managed Codex subagent values; unmanaged user defaults are never overwritten automatically.
+- The Codex AGENTS managed block now states primary-agent ownership when subagents are authorized.
+
+### Safety
+
+- ForgeGuard refuses to overwrite existing unmanaged `agents.default_subagent_model` or `agents.default_subagent_reasoning_effort` values.
+- An existing unmanaged `agents.enabled = false` is treated as a conflict rather than being silently changed.
+- Runtime configuration never bypasses the existing explicit user approval gate for subagent delegation.
+
 ## [1.4.0] - 2026-08-19
 
 ### Added
