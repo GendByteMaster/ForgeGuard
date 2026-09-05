@@ -37,6 +37,43 @@ The runtime preset is only a default for spawned subagents. A primary Codex agen
 
 ForgeGuard's policy layer remains authoritative for delegation decisions: explicit user authorization allows subagent use but does not require it. The primary agent remains responsible for planning, integration, verification, and the final response.
 
+#### Coexistence with GSD and existing `[agents]` settings
+
+ForgeGuard does not require ownership of the whole Codex `[agents]` table. It owns only the values inside its marked managed block.
+
+A third-party or user-owned setting such as:
+
+```toml
+# GSD Agent Configuration — managed by gsd-core installer
+[agents]
+max_depth = 1
+```
+
+is compatible with ForgeGuard. Enabling the ForgeGuard preset can share the same table:
+
+```toml
+# GSD Agent Configuration — managed by gsd-core installer
+[agents]
+# forgeguard:subagents-managed-start
+enabled = true
+default_subagent_model = "gpt-5.6-luna"
+default_subagent_reasoning_effort = "xhigh"
+# forgeguard:subagents-managed-end
+max_depth = 1
+```
+
+ForgeGuard preserves `max_depth`, unrelated direct `[agents]` keys, and custom `[agents.<role>]` tables. Uninstall removes only the ForgeGuard-managed block.
+
+Actual conflicts are limited to unmanaged values that overlap ForgeGuard's managed runtime keys:
+
+- `default_subagent_model`;
+- `default_subagent_reasoning_effort`;
+- `enabled = false`.
+
+An unmanaged `enabled = true` can be reused rather than duplicated.
+
+The status text `unmanaged codex subagents: <path>` means ForgeGuard found a Codex configuration file without a ForgeGuard-managed runtime block. It does **not** by itself mean the existing configuration is incompatible. A configuration containing only `max_depth = 1`, for example, is unmanaged but compatible.
+
 ### Claude Code
 
 Claude Code follows the Agent Skills standard and supports supporting files next to `SKILL.md`. ForgeGuard intentionally does not set `context: fork` or automatically opt into subagent execution because its policy requires explicit user authorization before delegation.
@@ -60,10 +97,30 @@ For Codex runtime configuration:
 - `--subagents` selects the ForgeGuard Luna/xhigh preset;
 - `--subagent-model` and `--subagent-reasoning` allow explicit overrides;
 - runtime settings are not changed during a normal install;
+- compatible existing `[agents]` settings are preserved;
 - unmanaged conflicting defaults cause a clear error instead of silent replacement;
 - uninstall removes only ForgeGuard-managed runtime content unless `--no-subagent-config` is used.
 
 If a selected Codex runtime does not support a configured model or reasoning effort, the runtime itself remains the final compatibility authority. ForgeGuard should report the incompatibility rather than silently falling back to another model.
+
+## CLI invocation compatibility
+
+Running ForgeGuard through:
+
+```bash
+npx --yes github:GendByteMaster/ForgeGuard ...
+```
+
+is a one-shot CLI invocation. It does not install a permanent `forgeguard` executable into the shell's PATH.
+
+To use the direct command permanently from the GitHub source package:
+
+```bash
+npm install --global github:GendByteMaster/ForgeGuard
+forgeguard --version
+```
+
+The ForgeGuard `--global` flag is a target-scope option for user-level skill/config paths; it is not a replacement for `npm install --global`.
 
 ## Portability contract
 
