@@ -48,6 +48,35 @@ Replace an existing installation:
 npx --yes github:GendByteMaster/ForgeGuard install --force
 ```
 
+### `npx` does not install a permanent `forgeguard` command
+
+`npx --yes github:GendByteMaster/ForgeGuard ...` downloads/runs the ForgeGuard CLI for that invocation. It does **not** make `forgeguard` a permanent command in your shell.
+
+After using `npx`, continue using the full `npx` form:
+
+```bash
+npx --yes github:GendByteMaster/ForgeGuard install --client codex --subagents --global --force
+npx --yes github:GendByteMaster/ForgeGuard status --client codex --global
+```
+
+If you want to type `forgeguard` directly, install the CLI globally from GitHub:
+
+```bash
+npm install --global github:GendByteMaster/ForgeGuard
+forgeguard --version
+```
+
+On Windows, reopen the terminal if the npm global `bin` directory was added to `PATH` after the current shell started.
+
+The ForgeGuard flag `--global` is unrelated to npm global CLI installation. It means **install the ForgeGuard skill/configuration into user-level locations instead of the current repository**.
+
+In other words:
+
+```text
+npm install --global ...   -> makes the forgeguard CLI available as a command
+forgeguard ... --global    -> targets user-level ForgeGuard/Codex files
+```
+
 ## Codex subagent runtime preset — v1.5.0+
 
 ForgeGuard can optionally configure Codex runtime defaults for authorized subagents.
@@ -88,6 +117,15 @@ A normal ForgeGuard install does **not** change Codex subagent runtime settings.
 Override the model or reasoning effort explicitly:
 
 ```bash
+npx --yes github:GendByteMaster/ForgeGuard install \
+  --client codex \
+  --subagent-model gpt-5.6-luna \
+  --subagent-reasoning xhigh
+```
+
+If the CLI was installed permanently, the equivalent shorter form is:
+
+```bash
 forgeguard install \
   --client codex \
   --subagent-model gpt-5.6-luna \
@@ -100,9 +138,73 @@ forgeguard install \
 
 ForgeGuard manages only its own marked block in the top-level `[agents]` table. It preserves unrelated Codex settings and custom `[agents.<role>]` tables.
 
-ForgeGuard refuses to overwrite unmanaged conflicting `default_subagent_model`, `default_subagent_reasoning_effort`, or `enabled = false` values. Resolve those settings manually before enabling the managed preset.
+An existing `[agents]` table is **not automatically a conflict**. ForgeGuard reuses it and preserves unrelated keys.
 
-`forgeguard uninstall` removes the ForgeGuard-managed subagent runtime block. Use `--no-subagent-config` when uninstalling the skill but intentionally keeping the managed Codex runtime block.
+For example, a Codex configuration created by GSD may already contain:
+
+```toml
+# GSD Agent Configuration — managed by gsd-core installer
+[agents]
+max_depth = 1
+```
+
+This is compatible with ForgeGuard. Running:
+
+```bash
+npx --yes github:GendByteMaster/ForgeGuard install --client codex --subagents --global --force
+```
+
+can produce a shared table like:
+
+```toml
+# GSD Agent Configuration — managed by gsd-core installer
+[agents]
+# forgeguard:subagents-managed-start
+enabled = true
+default_subagent_model = "gpt-5.6-luna"
+default_subagent_reasoning_effort = "xhigh"
+# forgeguard:subagents-managed-end
+max_depth = 1
+```
+
+ForgeGuard does not remove or take ownership of `max_depth = 1`. The same preservation rule applies to unrelated direct `[agents]` keys such as concurrency limits and to custom `[agents.<role>]` subtables.
+
+ForgeGuard refuses to overwrite unmanaged conflicting values for:
+
+- `default_subagent_model`;
+- `default_subagent_reasoning_effort`;
+- `enabled = false`.
+
+An unmanaged `enabled = true` can be reused. Resolve actual conflicting values manually before enabling the managed preset.
+
+`forgeguard uninstall` removes the ForgeGuard-managed subagent runtime block. User/GSD-owned values such as `max_depth = 1` remain.
+
+Use `--no-subagent-config` when uninstalling the skill but intentionally keeping the managed Codex runtime block.
+
+### Understanding `unmanaged codex subagents`
+
+`forgeguard status` may report a line such as:
+
+```text
+unmanaged codex subagents: C:\Users\you\.codex\config.toml
+```
+
+This means ForgeGuard found a Codex config path but did **not** find a ForgeGuard-managed subagent block there. By itself, this status does **not** mean the config is incompatible or broken.
+
+For example, a file containing only:
+
+```toml
+[agents]
+max_depth = 1
+```
+
+is unmanaged but compatible.
+
+To distinguish a compatible existing config from a real conflict:
+
+1. Inspect `$CODEX_HOME/config.toml` or `~/.codex/config.toml`.
+2. Check whether the existing `[agents]` table owns any of ForgeGuard's managed keys.
+3. Run the desired `install --subagents` command. ForgeGuard reports a specific error instead of silently replacing a conflicting unmanaged value.
 
 ### Authorization semantics
 
@@ -194,6 +296,12 @@ forgeguard status [options]
 forgeguard uninstall [options]
 ```
 
+The `forgeguard` command in this reference assumes a permanent CLI installation. When running directly from GitHub without installing the CLI, prefix commands with:
+
+```text
+npx --yes github:GendByteMaster/ForgeGuard
+```
+
 Options:
 
 ```text
@@ -221,7 +329,7 @@ After installation:
 3. Ask for a repository task such as a bug fix or refactor.
 4. Confirm that ForgeGuard first inspects repository instructions.
 5. Confirm that it does not launch a subagent without explicit approval.
-6. If `--subagents` was used, run `forgeguard status --client codex` and confirm the managed model is `gpt-5.6-luna` with `xhigh` reasoning.
+6. If `--subagents` was used, run `npx --yes github:GendByteMaster/ForgeGuard status --client codex` (or `forgeguard status --client codex` after a permanent CLI install) and confirm the managed model is `gpt-5.6-luna` with `xhigh` reasoning.
 7. Give the primary agent explicit permission to use subagents and confirm that delegation remains optional rather than mandatory.
 8. For consequential operations, confirm that ForgeGuard assigns a Risk Gate classification before execution.
 
@@ -241,6 +349,6 @@ No new CLI flags or runtime behavior are introduced. The Luna + xhigh preset and
 
 See [delegation policy](../engineering-guardrails/references/delegation-intelligence.md) and [usage scenarios](../examples/USAGE.md#13-small-task-with-authorization).
 
-Upgrade with `forgeguard install --force` (add `--global` for an existing global installation). This refreshes the skill references and the concise managed Codex AGENTS block without changing runtime settings. Restart the coding-agent session to load the new instructions.
+Upgrade with `npx --yes github:GendByteMaster/ForgeGuard install --force` (add `--global` for an existing global installation). If the CLI was installed permanently, `forgeguard install --force` is equivalent. This refreshes the skill references and the concise managed Codex AGENTS block without changing runtime settings. Restart the coding-agent session to load the new instructions.
 
 Validate scoped approval: authorize review only, confirm the agent reuses that approval within the review, and confirm it does not expand to implementation workers. For a small task, confirm that it can choose local work even with authorization.
