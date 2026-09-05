@@ -201,3 +201,45 @@ Verified: targeted unit tests passed.
 Not verified: integration suite could not start because MongoDB was unavailable.
 Remaining risk: transaction behavior has not been exercised against a replica set in this run.
 ```
+
+## 13. Small task with authorization
+
+User: "Fix this typo. You may use subagents for this task."
+
+Evaluate usefulness, then make the edit locally: context transfer would cost more than the work. Inspect the diff and relevant text; do not launch a worker or run broad regression tests merely because permission exists.
+
+## 14. Large parallel task
+
+User: "Implement the CSV importer and its independent documentation update. You may use subagents for this task."
+
+Once the input/output contract is settled, the primary agent implements the importer while one worker updates only the import documentation. Reuse the existing approval without another prompt. Give the worker a bounded contract, then inspect its output against the implemented behavior and run the relevant importer regressions. Workers do not create workers.
+
+## 15. Bounded authorization
+
+User: "You may use one read-only worker to review the parser."
+
+Assign only the parser review, with source locations and reproductions required. Reuse this approval within that assignment. It does not authorize a second worker, edits, or an unrelated review. Keep other work local; ask for renewed approval only if delegation beyond those limits is needed.
+
+## 16. No authorization
+
+User: "Fix the importer."
+
+Even if the Luna/xhigh preset is installed and a planner recommends workers, do not delegate. Continue locally. Ask only if the task cannot reasonably proceed without a worker; tool availability and silence do not grant permission.
+
+## 17. Independent verification worker
+
+User: "You may use a worker to independently verify the importer fix."
+
+Example contract:
+
+```text
+Objective: find regressions in malformed CSV handling after the fix.
+Scope: read-only review of the parser and parser tests; no code edits.
+Expected output: findings ordered by severity, or an explicit no-findings report.
+Evidence required: source locations, inputs/reproductions, commands and results,
+                   and a list of checks that could not run.
+Constraints: do not alter shared files or revert others' edits; do not spawn
+             subagents; report scope changes to the primary agent.
+```
+
+While the worker reviews, the primary agent checks caller integration. Assess the worker's evidence, resolve contradictory findings, and perform missing integration checks. Reuse applicable successful checks without blindly rerunning them; rerun affected checks if subsequent edits invalidate their evidence. The primary agent owns the final verification and response.

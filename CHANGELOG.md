@@ -2,6 +2,25 @@
 
 All notable changes to ForgeGuard are documented here.
 
+## [1.6.0] - 2026-09-05
+
+### Added
+
+- Instruction Resolution for priority, hard requirements, and transparent blocking conflicts without permission loops.
+- Delegation Intelligence with task-scoped authorization reuse, benefit/overhead evaluation, and bounded worker contracts.
+- Verification Calibration for focused, regression, and broader integration checks according to risk and scope.
+- Delegation scenarios and install lifecycle/policy validation coverage.
+
+### Changed
+
+- The compact skill and managed Codex instruction block now describe scoped permission, active evaluation, evidence assessment, and primary-agent ownership.
+- Default delegation depth is 1; nested worker spawning is not enabled by v1.6.0 policy.
+
+### Unchanged
+
+- Existing CLI flags, optional Luna + xhigh runtime preset, and primary model configuration.
+- Delegation remains optional and requires explicit authorization; no automatic model routing or standalone runtime is added.
+
 ## [1.5.0] - 2026-09-04
 
 ### Added

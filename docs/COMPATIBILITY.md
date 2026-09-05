@@ -2,15 +2,15 @@
 
 ForgeGuard follows the portable Agent Skills model: a directory containing `SKILL.md` plus optional supporting resources.
 
-ForgeGuard v1.5.0 keeps the core skill portable while adding an optional Codex-specific runtime adapter for authorized subagents.
+ForgeGuard v1.6.0 adds portable Delegation Intelligence while retaining the optional Codex-specific runtime adapter introduced in v1.5.0.
 
 ## Compatibility matrix
 
 | Client | Status | Project skill path | User/global skill path | Explicit invocation | Managed subagent runtime |
 |---|---|---|---|---|---|
 | OpenAI Codex | Supported | `.agents/skills/engineering-guardrails/` | `~/.agents/skills/engineering-guardrails/` | `$engineering-guardrails` | Supported via `.codex/config.toml` / `$CODEX_HOME/config.toml` |
-| Claude Code | Supported | `.claude/skills/engineering-guardrails/` | `~/.claude/skills/engineering-guardrails/` | `/engineering-guardrails` | Not managed in v1.5.0 |
-| Cursor | Supported | `.agents/skills/engineering-guardrails/` or `.cursor/skills/engineering-guardrails/` | `~/.cursor/skills/engineering-guardrails/` | `/engineering-guardrails` | Not managed in v1.5.0 |
+| Claude Code | Supported | `.claude/skills/engineering-guardrails/` | `~/.claude/skills/engineering-guardrails/` | `/engineering-guardrails` | Not managed in v1.6.0 |
+| Cursor | Supported | `.agents/skills/engineering-guardrails/` or `.cursor/skills/engineering-guardrails/` | `~/.cursor/skills/engineering-guardrails/` | `/engineering-guardrails` | Not managed in v1.6.0 |
 
 ## Notes
 
@@ -41,7 +41,7 @@ ForgeGuard's policy layer remains authoritative for delegation decisions: explic
 
 Claude Code follows the Agent Skills standard and supports supporting files next to `SKILL.md`. ForgeGuard intentionally does not set `context: fork` or automatically opt into subagent execution because its policy requires explicit user authorization before delegation.
 
-ForgeGuard v1.5.0 does not modify Claude Code runtime/model configuration.
+ForgeGuard v1.6.0 does not modify Claude Code runtime/model configuration.
 
 ### Cursor
 
@@ -49,7 +49,7 @@ Cursor supports Agent Skills and project-level `.agents/skills/`. `.cursor/skill
 
 Some Cursor releases have had skill-discovery/injection bugs even when a skill appears in Settings or the slash menu. If ForgeGuard is installed but automatic invocation is unreliable, invoke `/engineering-guardrails` explicitly and verify that the skill appears under Cursor Settings → Rules, Skills, Subagents.
 
-ForgeGuard v1.5.0 does not modify Cursor runtime/model configuration.
+ForgeGuard v1.6.0 does not modify Cursor runtime/model configuration.
 
 ## Runtime compatibility behavior
 
@@ -78,3 +78,11 @@ ForgeGuard must remain usable without assuming:
 - GitHub as the repository host.
 
 Client-specific adapters must remain optional and must not weaken the portable core policy. Unsupported clients should still receive the core skill without being forced into Codex-specific configuration.
+
+## Delegation Intelligence - v1.6.0
+
+The portable policy adds scoped authorization reuse, active evaluation of useful parallel work, bounded worker contracts, primary-agent ownership, instruction resolution, and verification calibrated to risk. Authorization is permission, not mandatory delegation. Default depth is 1; workers must not spawn subagents under this policy. Clients without worker support continue locally.
+
+No new CLI flags or runtime behavior are introduced. The Luna + xhigh preset and the user's primary model remain unchanged. Runtime availability is not user authorization; there is no automatic model routing.
+
+See [delegation policy](../engineering-guardrails/references/delegation-intelligence.md) and [usage scenarios](../examples/USAGE.md#13-small-task-with-authorization).
