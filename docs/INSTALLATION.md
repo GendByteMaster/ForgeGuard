@@ -134,8 +134,8 @@ The package requires Node.js 18 or newer and has no runtime dependencies.
 | Client | Skill path | Optional runtime config |
 |---|---|---|
 | Codex | `.agents/skills/engineering-guardrails/` | `.codex/config.toml` with explicit subagent options |
-| Claude Code | `.claude/skills/engineering-guardrails/` | Not managed by ForgeGuard v1.5.0 |
-| Cursor | `.agents/skills/engineering-guardrails/` | Not managed by ForgeGuard v1.5.0 |
+| Claude Code | `.claude/skills/engineering-guardrails/` | Not managed by ForgeGuard v1.6.0 |
+| Cursor | `.agents/skills/engineering-guardrails/` | Not managed by ForgeGuard v1.6.0 |
 
 When `--client all` is used, Codex and Cursor share the same `.agents/skills` copy, so the CLI avoids duplicating those files. Claude Code receives its own `.claude/skills` copy.
 
@@ -144,8 +144,8 @@ When `--client all` is used, Codex and Cursor share the same `.agents/skills` co
 | Client | Skill path | Optional runtime config |
 |---|---|---|
 | Codex | `~/.agents/skills/engineering-guardrails/` | `$CODEX_HOME/config.toml` or `~/.codex/config.toml` |
-| Claude Code | `~/.claude/skills/engineering-guardrails/` | Not managed by ForgeGuard v1.5.0 |
-| Cursor | `~/.cursor/skills/engineering-guardrails/` | Not managed by ForgeGuard v1.5.0 |
+| Claude Code | `~/.claude/skills/engineering-guardrails/` | Not managed by ForgeGuard v1.6.0 |
+| Cursor | `~/.cursor/skills/engineering-guardrails/` | Not managed by ForgeGuard v1.6.0 |
 
 ## Manual project-level installation
 
@@ -232,3 +232,15 @@ After installation:
 - Cursor Agent Skills: https://cursor.com/docs/skills
 - npm package `bin` field: https://docs.npmjs.com/cli/v11/configuring-npm/package-json#bin
 - npm package specifications: https://docs.npmjs.com/cli/v11/using-npm/package-spec
+
+## Delegation Intelligence - v1.6.0
+
+The portable policy adds scoped authorization reuse, active evaluation of useful parallel work, bounded worker contracts, primary-agent ownership, instruction resolution, and verification calibrated to risk. Authorization is permission, not mandatory delegation. Default depth is 1; workers must not spawn subagents under this policy. Clients without worker support continue locally.
+
+No new CLI flags or runtime behavior are introduced. The Luna + xhigh preset and the user's primary model remain unchanged. Runtime availability is not user authorization; there is no automatic model routing.
+
+See [delegation policy](../engineering-guardrails/references/delegation-intelligence.md) and [usage scenarios](../examples/USAGE.md#13-small-task-with-authorization).
+
+Upgrade with `forgeguard install --force` (add `--global` for an existing global installation). This refreshes the skill references and the concise managed Codex AGENTS block without changing runtime settings. Restart the coding-agent session to load the new instructions.
+
+Validate scoped approval: authorize review only, confirm the agent reuses that approval within the review, and confirm it does not expand to implementation workers. For a small task, confirm that it can choose local work even with authorization.

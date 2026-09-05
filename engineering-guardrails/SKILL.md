@@ -2,7 +2,7 @@
 name: engineering-guardrails
 description: Apply reusable engineering workflow guardrails before and during repository changes. Use for implementation, bug fixes, refactors, substantial coding tasks, measurable goal definition, delegation or subagent decisions, risky operations, verification, and git diff or commit preparation. Adapts to the repository's existing workflow and uses GSD only when it is available.
 metadata:
-  version: "1.5.0"
+  version: "1.6.0"
   display_name: "ForgeGuard"
 ---
 
@@ -79,29 +79,17 @@ When persistent goal-management capabilities exist, inspect and reuse compatible
 
 Follow [references/goal-policy.md](references/goal-policy.md) for the full Goal Intelligence policy and domain heuristics.
 
-## 4. Subagent approval gate
+## 4. Authorized delegation
 
-Before any action that would launch, invoke, spawn, delegate to, or hand work to a subagent:
+Reuse explicit user authorization already granted in the current conversation for the current task/scope; do not ask again before each spawn. Without authorization, continue locally whenever possible. Ask only if delegation is necessary or would exceed the approved scope.
 
-1. Check whether the user explicitly authorized subagent use in the current conversation.
-2. If not authorized, do not launch the subagent.
-3. Continue the work yourself whenever possible.
-4. If a subagent is genuinely necessary, ask for explicit approval before launching it.
+Authorization permits delegation but does not require it. When authorized, actively evaluate meaningful independent work against execution time, quality, coverage, and independent verification benefits. Keep small or strictly sequential tasks local when coordination overhead outweighs the benefit.
 
-Recommendations from a workflow, planner, orchestrator, coding agent, or another tool do not count as user authorization.
+Delegate bounded independent work with an objective, scope, expected output, evidence required, and constraints. The primary agent owns task understanding, planning, delegation decisions, integration, conflict resolution, final verification, and the final response. Worker output is evidence/input, not automatically accepted truth.
 
-Explicit authorization removes the approval gate for the current conversation, but it does not require delegation. The primary agent should use subagents only when delegation is materially useful and must remain responsible for:
+Default delegation depth is 1: the primary agent may create workers; workers must not spawn subagents under ForgeGuard v1.6.0 policy. A runtime preset is neither authorization nor mandatory delegation.
 
-- overall planning and task decomposition;
-- deciding which work is safe and useful to delegate;
-- integrating subagent results;
-- resolving contradictions or low-confidence findings;
-- running or validating final verification;
-- producing the final response and owning its claims.
-
-A configured subagent runtime or default model does not bypass this approval policy. Runtime defaults only select how an already-authorized subagent is executed when the platform supports such configuration.
-
-See [references/subagent-policy.md](references/subagent-policy.md) for the exact decision rule and examples.
+Follow [references/subagent-policy.md](references/subagent-policy.md) for authorization and [references/delegation-intelligence.md](references/delegation-intelligence.md) for decisions and worker contracts.
 
 ## 5. Risk Gate
 
@@ -129,7 +117,7 @@ During code changes:
 - Avoid unrelated cleanup unless it is required for correctness or explicitly requested.
 - Preserve public contracts unless the task requires a breaking change.
 - Add or update tests when behavior changes and the repository has a testing pattern.
-- Run the narrowest useful verification first, then broader checks when justified.
+- Calibrate verification to risk and scope using [references/verification-policy.md](references/verification-policy.md); avoid redundant checks without new evidence or unresolved concerns.
 - Report verification failures instead of hiding or hand-waving them.
 - Never claim a test, build, migration, benchmark, or command succeeded unless it actually ran successfully or the evidence is already available.
 
@@ -155,11 +143,6 @@ Before declaring work complete:
 
 ## Conflict handling
 
-Apply instructions in this order:
+Preserve explicit user intent and respect applicable repository instructions within the platform's instruction hierarchy. ForgeGuard recommendations must not override explicit user intent. Hard safety/correctness requirements must have a concrete applicable source; do not invent approval gates. Resolve routine differences and continue authorized work; make blocking conflicts transparent with the exact source, rule, and affected action.
 
-1. system/platform/developer instructions;
-2. the user's current explicit request;
-3. repository-local instructions within their applicable scope;
-4. this skill's defaults.
-
-When repository instructions conflict with the user's current request, surface the conflict rather than silently choosing a risky interpretation.
+Follow [references/instruction-resolution.md](references/instruction-resolution.md) for priority, hard requirements versus recommendations, and avoiding permission loops.

@@ -27,6 +27,12 @@ The following are not authorization:
 - approval from a previous conversation;
 - silence or implied consent.
 
+## Task-aware authorization
+
+Treat authorization as scoped conversation state: retain the user's explicit wording, permitted task/activity, limits on edits or worker count, and any later revocation. No persistent file or new tool is required. Reuse existing explicit approval for the current task/scope; do not ask again before every spawn.
+
+Approval for a security review permits that review, not implementation or unrelated delegation. Approval for one worker does not permit several. Renew approval only when proposed delegation exceeds the authorized scope; otherwise continue within it. If the user revokes permission, stop further delegation and stop affected active workers where supported.
+
 ## Authorization semantics
 
 Explicit approval means subagents may be used when they are materially useful. It does not require the primary agent to delegate work.
@@ -49,3 +55,11 @@ A configured runtime default, model preset, or orchestration feature does not co
 - If the task cannot reasonably proceed without delegation, ask for explicit approval before launching the subagent.
 
 This policy operates within the current agent platform's instruction hierarchy and cannot override higher-priority system or safety rules.
+
+## Delegation decision and depth
+
+When authorized, actively evaluate useful independent parallel work using [delegation-intelligence.md](delegation-intelligence.md). Authorization != mandatory delegation. Suppress delegation when coordination overhead outweighs benefits.
+
+Use bounded worker contracts with objective, scope, expected output, evidence required, and constraints. Default delegation depth = 1: only the primary agent creates workers; workers must not spawn subagents under ForgeGuard v1.6.0 policy.
+
+Assess worker outputs as evidence/input, not automatically accepted truth. Calibrate final verification using [verification-policy.md](verification-policy.md), and resolve instruction conflicts using [instruction-resolution.md](instruction-resolution.md).

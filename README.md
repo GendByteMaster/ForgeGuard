@@ -6,7 +6,7 @@
 
 - **Human name:** ForgeGuard
 - **Technical skill name:** `engineering-guardrails`
-- **Current version:** `1.5.0`
+- **Current version:** `1.6.0`
 - **License:** MIT
 - **Clients:** OpenAI Codex, Claude Code, Cursor
 
@@ -146,6 +146,18 @@ forgeguard uninstall [--client all|codex|claude|cursor] [--global] [--no-agents]
 ```
 
 The npm package has no runtime dependencies and requires Node.js 18 or newer.
+
+## Delegation Intelligence - v1.6.0
+
+Reuse explicit user authorization within the current task/scope without asking before each worker. Authorization permits delegation but does not require it. When authorized, actively evaluate independent work for execution time, quality, coverage, or independent verification benefits. Keep small or sequential tasks local when coordination overhead outweighs the benefit.
+
+Every worker receives an objective, scope, expected output, evidence required, and constraints. Default delegation depth is 1; workers must not spawn subagents under this policy. The primary agent assesses worker evidence, owns integration and conflict resolution, verifies the final result, and answers the user.
+
+Instruction Resolution preserves explicit user intent and applicable repository instructions, separates hard requirements from recommendations, and explains blocking conflicts without permission loops. Verification is calibrated to risk and scope; successful checks are not repeated without new evidence or unresolved concerns.
+
+See [delegation policy](engineering-guardrails/references/delegation-intelligence.md), [instruction resolution](engineering-guardrails/references/instruction-resolution.md), [verification policy](engineering-guardrails/references/verification-policy.md), and [usage scenarios](examples/USAGE.md#13-small-task-with-authorization).
+
+The existing CLI flags and Luna + xhigh preset remain unchanged. Runtime configuration answers which worker defaults are available; this policy answers whether and how to use them. It does not change the primary model, automatically route models, or provide a standalone multi-agent runtime.
 
 ## Codex Subagent Runtime — v1.5.0
 
@@ -343,6 +355,9 @@ Debugging, security analysis, architecture, testing, deployment, GitHub operatio
 engineering-guardrails/
 ├── SKILL.md
 └── references/
+    ├── delegation-intelligence.md
+    ├── instruction-resolution.md
+    ├── verification-policy.md
     ├── commit-policy.md
     ├── goal-policy.md
     ├── gsd-workflow.md
@@ -364,9 +379,12 @@ See:
 - [Compatibility notes](docs/COMPATIBILITY.md)
 - [Usage examples](examples/USAGE.md)
 - [Changelog](CHANGELOG.md)
+- [v1.6.0 release notes](docs/releases/v1.6.0.md)
 - [v1.5.0 release notes](docs/releases/v1.5.0.md)
 
 ## Version history
+
+- **v1.6.0 - Delegation Intelligence**: scoped authorization, bounded workers, instruction resolution, and calibrated verification.
 
 - **v1.5.0 — Codex Subagent Runtime**: optional Luna/xhigh defaults, safe TOML management, and primary-agent ownership.
 - **v1.4.0 — Goal Intelligence**: measurable goals, evidence, quantification, scope, and stop conditions.

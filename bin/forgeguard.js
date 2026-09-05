@@ -22,7 +22,7 @@ import {
 } from './codex-config.js';
 
 const SKILL_NAME = 'engineering-guardrails';
-const VERSION = '1.5.0';
+const VERSION = '1.6.0';
 const PACKAGE_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const SOURCE = join(PACKAGE_ROOT, SKILL_NAME);
 
@@ -34,8 +34,12 @@ const AGENTS_BLOCK = `${AGENTS_START}
 - Before substantial ambiguous work, use ForgeGuard Goal Intelligence to define measurable success when needed.
 - Before repository implementation, bug fixes, refactors, migrations, security-sensitive changes, production changes, or commit preparation, load and apply the \`${SKILL_NAME}\` skill.
 - Follow ForgeGuard's Risk Gate and explicit subagent approval gate.
-- Subagent authorization is permission, not a requirement; the primary agent remains responsible for planning, integration, verification, and the final response.
-- Keep repository-local instructions authoritative within their scope.
+- Reuse explicit user subagent authorization for the current task/scope; do not ask again per spawn or expand that scope without approval.
+- Authorization permits but does not require delegation; actively evaluate useful independent parallel work when authorized.
+- Give workers an objective, scope, expected output, evidence required, and constraints; delegation depth is 1 and workers must not spawn subagents.
+- The primary agent owns planning, integration, conflict resolution, final verification, and the final response; treat worker output as evidence to assess.
+- Calibrate verification to risk and scope; avoid redundant checks without new evidence or unresolved concerns.
+- Preserve explicit user intent and applicable repository-local instructions within the platform hierarchy; distinguish hard requirements from recommendations and explain blocking conflicts.
 - If the skill cannot be loaded, report that explicitly and continue with the repository's existing instructions; do not invent missing ForgeGuard policy.
 ${AGENTS_END}`;
 
