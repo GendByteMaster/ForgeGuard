@@ -31,3 +31,11 @@ Default delegation depth = 1. The primary agent may create workers. Nested/recur
 The primary agent owns task understanding, planning, delegation decisions, integration, conflict resolution, final verification, and the final response. Assess worker output as evidence/input, not automatically accepted truth. Check claims against the requested scope and supplied evidence, resolve contradictions, inspect relevant changes, and verify integration. Reject or correct unsupported findings; do not blindly duplicate every worker check.
 
 Use [verification-policy.md](verification-policy.md) to determine remaining validation. Runtime configuration selects available worker defaults; this policy decides whether and how authorized workers are used. It does not route models, change the primary model, or provide a standalone multi-agent runtime.
+
+## Design basis
+
+OpenAI's Model guidance for GPT-6 Astra recommends explicitly tuning subagent usage and delegating parallel work when doing so can save time or improve quality. The same guidance allows this pattern for root agents or subagents when the harness supports it.
+
+ForgeGuard adopts the useful-parallelism principle but adds its own authorization boundary, coordination-cost check, bounded worker contract, primary-agent ownership, and conservative default depth of 1. Those are ForgeGuard policy choices rather than requirements stated by OpenAI.
+
+Source: https://developers.openai.com/api/docs/guides/latest-model

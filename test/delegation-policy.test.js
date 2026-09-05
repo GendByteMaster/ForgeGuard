@@ -10,6 +10,7 @@ const root = fileURLToPath(new URL('../', import.meta.url));
 const cli = join(root, 'bin/forgeguard.js');
 const read = (path) => readFileSync(path, 'utf8');
 const references = ['instruction-resolution', 'delegation-intelligence', 'verification-policy', 'subagent-policy'];
+const openAiModelGuidance = 'https://developers.openai.com/api/docs/guides/latest-model';
 
 for (const client of ['all', 'codex', 'claude', 'cursor']) {
   test(`${client}: install, status, reinstall, and uninstall preserve user content`, (t) => {
@@ -58,20 +59,31 @@ for (const client of ['all', 'codex', 'claude', 'cursor']) {
   });
 }
 
-test('policy contract preserves authorization, depth, evidence, and verification invariants', () => {
+test('policy contract preserves authorization, portability, depth, evidence, and verification invariants', () => {
   const policy = (name) => read(join(root, `engineering-guardrails/references/${name}.md`));
   assert.match(policy('subagent-policy'), /do not ask again before every spawn/i);
   assert.match(policy('subagent-policy'), /Renew approval only when proposed delegation exceeds the authorized scope/);
   assert.match(policy('subagent-policy'), /Authorization != mandatory delegation/);
   assert.match(policy('subagent-policy'), /Continue working without a subagent whenever possible/);
+
   const delegation = policy('delegation-intelligence');
   for (const rule of [/actively evaluate/, /Suppress delegation for small changes, strictly sequential/, /Default delegation depth = 1/, /not automatically accepted truth/, /Objective:/, /Scope:/, /Expected output:/, /Evidence required:/, /Constraints:/]) assert.match(delegation, rule);
-  assert.match(policy('instruction-resolution'), /system\/platform\/developer instructions first, then explicit user intent/);
-  assert.match(policy('instruction-resolution'), /cite the exact file\/source/);
-  assert.match(policy('verification-policy'), /Small\/reversible/);
-  assert.match(policy('verification-policy'), /Targeted regression/);
-  assert.match(policy('verification-policy'), /Broader contract and integration/);
-  assert.match(policy('verification-policy'), /only when new changes, failures, new evidence, or unresolved concerns/);
+  assert.match(delegation, /ForgeGuard policy choices rather than requirements stated by OpenAI/);
+  assert.match(delegation, new RegExp(openAiModelGuidance.replaceAll('/', '\\/')));
+
+  const instructionResolution = policy('instruction-resolution');
+  assert.match(instructionResolution, /Always follow the host platform's instruction hierarchy and scoping rules/);
+  assert.match(instructionResolution, /does not define a universal precedence order/);
+  assert.match(instructionResolution, /explicit user instructions take precedence over ForgeGuard recommendations and skill guidelines/);
+  assert.match(instructionResolution, /cite the exact file\/source/);
+  assert.match(instructionResolution, new RegExp(openAiModelGuidance.replaceAll('/', '\\/')));
+
+  const verification = policy('verification-policy');
+  assert.match(verification, /Small\/reversible/);
+  assert.match(verification, /Targeted regression/);
+  assert.match(verification, /Broader contract and integration/);
+  assert.match(verification, /only when new changes, failures, new evidence, or unresolved concerns/);
+  assert.match(verification, new RegExp(openAiModelGuidance.replaceAll('/', '\\/')));
 });
 
 test('skill references resolve and CLI version matches the package', () => {
