@@ -26,7 +26,7 @@ Tell workers they share the codebase: do not revert others' edits; accommodate c
 
 ## Ownership and depth
 
-Default delegation depth = 1. The primary agent may create workers. Nested/recursive spawning is not enabled by ForgeGuard v1.6.0 policy; workers return additional work to the primary agent. Runtime support for recursion does not grant policy authorization.
+Default delegation depth = 1. The primary agent may create workers. Nested/recursive spawning is not enabled by ForgeGuard v1.6.1 policy; workers return additional work to the primary agent. Runtime support for recursion does not grant policy authorization.
 
 The primary agent owns task understanding, planning, delegation decisions, integration, conflict resolution, final verification, and the final response. Assess worker output as evidence/input, not automatically accepted truth. Check claims against the requested scope and supplied evidence, resolve contradictions, inspect relevant changes, and verify integration. Reject or correct unsupported findings; do not blindly duplicate every worker check.
 

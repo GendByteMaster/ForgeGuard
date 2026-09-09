@@ -2,7 +2,7 @@
 name: engineering-guardrails
 description: Apply reusable engineering workflow guardrails before and during repository changes. Use for implementation, bug fixes, refactors, substantial coding tasks, measurable goal definition, delegation or subagent decisions, risky operations, verification, and git diff or commit preparation. Adapts to the repository's existing workflow and uses GSD only when it is available.
 metadata:
-  version: "1.6.0"
+  version: "1.6.1"
   display_name: "ForgeGuard"
 ---
 
@@ -77,6 +77,8 @@ Ask at most one concise clarification question when missing information can mate
 
 When persistent goal-management capabilities exist, inspect and reuse compatible active goal state before creating another goal. Do not fabricate goal tools or durable planning state when the environment does not provide them.
 
+Define and manage the goal in the current task. Goal Intelligence must not create a separate task, thread, chat, worktree, or delegated worker merely to hold or refine a goal. A separate task is allowed only when the user explicitly requests one for work beyond goal definition.
+
 Follow [references/goal-policy.md](references/goal-policy.md) for the full Goal Intelligence policy and domain heuristics.
 
 ## 4. Authorized delegation
@@ -87,7 +89,7 @@ Authorization permits delegation but does not require it. When authorized, activ
 
 Delegate bounded independent work with an objective, scope, expected output, evidence required, and constraints. The primary agent owns task understanding, planning, delegation decisions, integration, conflict resolution, final verification, and the final response. Worker output is evidence/input, not automatically accepted truth.
 
-Default delegation depth is 1: the primary agent may create workers; workers must not spawn subagents under ForgeGuard v1.6.0 policy. A runtime preset is neither authorization nor mandatory delegation.
+Default delegation depth is 1: the primary agent may create workers; workers must not spawn subagents under ForgeGuard v1.6.1 policy. A runtime preset is neither authorization nor mandatory delegation.
 
 Follow [references/subagent-policy.md](references/subagent-policy.md) for authorization and [references/delegation-intelligence.md](references/delegation-intelligence.md) for decisions and worker contracts.
 

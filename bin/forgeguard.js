@@ -22,7 +22,7 @@ import {
 } from './codex-config.js';
 
 const SKILL_NAME = 'engineering-guardrails';
-const VERSION = '1.6.0';
+const VERSION = '1.6.1';
 const PACKAGE_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const SOURCE = join(PACKAGE_ROOT, SKILL_NAME);
 
@@ -32,6 +32,7 @@ const AGENTS_BLOCK = `${AGENTS_START}
 ## ForgeGuard
 
 - Before substantial ambiguous work, use ForgeGuard Goal Intelligence to define measurable success when needed.
+- Keep goal definition and goal-management state in the current task; never create a separate task or thread merely to hold a goal.
 - Before repository implementation, bug fixes, refactors, migrations, security-sensitive changes, production changes, or commit preparation, load and apply the \`${SKILL_NAME}\` skill.
 - Follow ForgeGuard's Risk Gate and explicit subagent approval gate.
 - Reuse explicit user subagent authorization for the current task/scope; do not ask again per spawn or expand that scope without approval.

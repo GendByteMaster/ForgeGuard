@@ -118,22 +118,25 @@ When the user cannot provide a metric, propose the strongest honest binary valid
 
 When the current environment provides persistent goal-management capabilities:
 
-1. inspect existing active goal state before creating another goal;
+1. inspect existing active goal state for the current task before creating another goal;
 2. reuse an unfinished goal when it still matches the user's intent;
 3. surface a conflict when an active goal materially differs from the new request;
-4. let the user decide whether to complete, replace, abandon, or separate conflicting goal-backed work when that decision matters;
+4. let the user decide whether to complete, replace, or abandon conflicting goal-backed work when that decision matters;
 5. create new persistent goal state only when no suitable active goal already exists.
 
 Never assume tool names or persistent goal APIs exist.
+
+Goal state belongs to the current task. Do not create a new task, thread, chat, worktree, or delegated worker merely to define, refine, store, replace, or continue a goal. A separate task may be created only when the user explicitly requests one for work beyond goal management; a goal conflict alone is not authorization to create it.
 
 ## 9. Portability
 
 ForgeGuard must remain portable across coding agents and repositories.
 
 - If goal-management tools exist, use them according to their actual contract.
-- If they do not exist, keep the goal in the current task context or use the repository's established planning mechanism.
+- If they do not exist, keep the goal in the current task context or use the repository's established in-task planning mechanism.
 - Do not fabricate `get_goal`, `create_goal`, snapshot, ledger, decision-log, or resume capabilities.
 - Do not introduce persistent planning artifacts merely because Goal Intelligence supports structured goals.
+- Do not route goal management into task/thread creation APIs or delegation APIs.
 - Do not set a token budget unless the user explicitly requests one.
 
 ## 10. Recommended local goal format

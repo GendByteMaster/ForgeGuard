@@ -60,6 +60,6 @@ This policy operates within the current agent platform's instruction hierarchy a
 
 When authorized, actively evaluate useful independent parallel work using [delegation-intelligence.md](delegation-intelligence.md). Authorization != mandatory delegation. Suppress delegation when coordination overhead outweighs benefits.
 
-Use bounded worker contracts with objective, scope, expected output, evidence required, and constraints. Default delegation depth = 1: only the primary agent creates workers; workers must not spawn subagents under ForgeGuard v1.6.0 policy.
+Use bounded worker contracts with objective, scope, expected output, evidence required, and constraints. Default delegation depth = 1: only the primary agent creates workers; workers must not spawn subagents under ForgeGuard v1.6.1 policy.
 
 Assess worker outputs as evidence/input, not automatically accepted truth. Calibrate final verification using [verification-policy.md](verification-policy.md), and resolve instruction conflicts using [instruction-resolution.md](instruction-resolution.md).

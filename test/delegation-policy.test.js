@@ -84,10 +84,24 @@ test('policy contract preserves authorization, portability, depth, evidence, and
   assert.match(verification, /Broader contract and integration/);
   assert.match(verification, /only when new changes, failures, new evidence, or unresolved concerns/);
   assert.match(verification, new RegExp(openAiModelGuidance.replaceAll('/', '\\/')));
+
+  const goal = policy('goal-policy');
+  assert.match(goal, /Goal state belongs to the current task/);
+  assert.match(goal, /Do not create a new task, thread, chat, worktree, or delegated worker merely to define, refine, store, replace, or continue a goal/);
+  assert.match(goal, /Do not route goal management into task\/thread creation APIs or delegation APIs/);
 });
 
 test('skill references resolve and CLI version matches the package', () => {
   const path = join(root, 'engineering-guardrails/SKILL.md');
   for (const match of read(path).matchAll(/\]\((references\/[^)]+)\)/g)) assert.ok(existsSync(join(dirname(path), match[1])), match[1]);
   assert.equal(execFileSync(process.execPath, [cli, '--version'], { encoding: 'utf8' }).trim(), JSON.parse(read(join(root, 'package.json'))).version);
+});
+
+test('managed Codex instructions keep Goal Intelligence in the current task', () => {
+  const source = read(join(root, 'bin/forgeguard.js'));
+  const skill = read(join(root, 'engineering-guardrails/SKILL.md'));
+  assert.match(source, /Keep goal definition and goal-management state in the current task/);
+  assert.match(source, /never create a separate task or thread merely to hold a goal/);
+  assert.match(skill, /Define and manage the goal in the current task/);
+  assert.match(skill, /must not create a separate task, thread, chat, worktree, or delegated worker merely to hold or refine a goal/);
 });

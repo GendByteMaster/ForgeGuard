@@ -236,8 +236,8 @@ The package requires Node.js 18 or newer and has no runtime dependencies.
 | Client | Skill path | Optional runtime config |
 |---|---|---|
 | Codex | `.agents/skills/engineering-guardrails/` | `.codex/config.toml` with explicit subagent options |
-| Claude Code | `.claude/skills/engineering-guardrails/` | Not managed by ForgeGuard v1.6.0 |
-| Cursor | `.agents/skills/engineering-guardrails/` | Not managed by ForgeGuard v1.6.0 |
+| Claude Code | `.claude/skills/engineering-guardrails/` | Not managed by ForgeGuard v1.6.1 |
+| Cursor | `.agents/skills/engineering-guardrails/` | Not managed by ForgeGuard v1.6.1 |
 
 When `--client all` is used, Codex and Cursor share the same `.agents/skills` copy, so the CLI avoids duplicating those files. Claude Code receives its own `.claude/skills` copy.
 
@@ -246,8 +246,8 @@ When `--client all` is used, Codex and Cursor share the same `.agents/skills` co
 | Client | Skill path | Optional runtime config |
 |---|---|---|
 | Codex | `~/.agents/skills/engineering-guardrails/` | `$CODEX_HOME/config.toml` or `~/.codex/config.toml` |
-| Claude Code | `~/.claude/skills/engineering-guardrails/` | Not managed by ForgeGuard v1.6.0 |
-| Cursor | `~/.cursor/skills/engineering-guardrails/` | Not managed by ForgeGuard v1.6.0 |
+| Claude Code | `~/.claude/skills/engineering-guardrails/` | Not managed by ForgeGuard v1.6.1 |
+| Cursor | `~/.cursor/skills/engineering-guardrails/` | Not managed by ForgeGuard v1.6.1 |
 
 ## Manual project-level installation
 

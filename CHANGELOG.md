@@ -2,6 +2,18 @@
 
 All notable changes to ForgeGuard are documented here.
 
+## [1.6.1] - 2026-09-09
+
+### Fixed
+
+- Goal Intelligence now keeps goal definition and goal-management state in the current task.
+- Goal conflicts no longer imply authorization to create a separate task, thread, chat, worktree, or delegated worker.
+
+### Changed
+
+- The portable goal policy, compact skill instructions, managed Codex AGENTS block, README, and contract tests now enforce current-task goal management.
+- ForgeGuard explicitly avoids routing goal management through task/thread creation or delegation APIs.
+
 ## [1.6.0] - 2026-09-05
 
 ### Added

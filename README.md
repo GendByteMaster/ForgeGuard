@@ -6,7 +6,7 @@
 
 - **Human name:** ForgeGuard
 - **Technical skill name:** `engineering-guardrails`
-- **Current version:** `1.6.0`
+- **Current version:** `1.6.1`
 - **License:** MIT
 - **Clients:** OpenAI Codex, Claude Code, Cursor
 
@@ -223,7 +223,7 @@ Evidence required
 Constraints
 ```
 
-Default delegation depth is `1`. Workers must not recursively spawn additional workers under the v1.6.0 ForgeGuard policy.
+Default delegation depth is `1`. Workers must not recursively spawn additional workers under the v1.6.1 ForgeGuard policy.
 
 The primary agent remains responsible for:
 
@@ -274,6 +274,8 @@ Goal:
 ```
 
 Routine work that already has clear acceptance criteria should not gain unnecessary goal ceremony.
+
+Goal definition and goal-management state stay in the current task. ForgeGuard does not create a separate task, thread, worktree, or worker merely to hold or refine a goal.
 
 See [goal-policy.md](engineering-guardrails/references/goal-policy.md).
 
@@ -395,11 +397,13 @@ engineering-guardrails/
 - [Compatibility notes](docs/COMPATIBILITY.md)
 - [Usage examples](examples/USAGE.md)
 - [Changelog](CHANGELOG.md)
+- [v1.6.1 release notes](docs/releases/v1.6.1.md)
 - [v1.6.0 release notes](docs/releases/v1.6.0.md)
 - [v1.5.0 release notes](docs/releases/v1.5.0.md)
 
 ## Version history
 
+- **v1.6.1 — Current-task Goal Management**: keeps goal state in the current task and prevents Goal Intelligence from creating separate tasks, threads, worktrees, or workers merely to manage a goal.
 - **v1.6.0 — Delegation Intelligence**: scoped authorization reuse, useful-parallelization decisions, bounded workers, portable instruction resolution, and calibrated verification.
 - **v1.5.0 — Codex Subagent Runtime**: optional Luna/xhigh defaults, safe TOML management, and primary-agent ownership.
 - **v1.4.0 — Goal Intelligence**: measurable goals, evidence, quantification, scope, and stop conditions.
