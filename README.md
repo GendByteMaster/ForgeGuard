@@ -40,50 +40,50 @@ ForgeGuard provides:
 Run ForgeGuard directly from GitHub with `npx`:
 
 ```bash
-npx --yes github:GendByteMaster/ForgeGuard install
+npx --yes --allow-git=all github:GendByteMaster/ForgeGuard install
 ```
 
 Check installation:
 
 ```bash
-npx --yes github:GendByteMaster/ForgeGuard status
+npx --yes --allow-git=all github:GendByteMaster/ForgeGuard status
 ```
 
 Upgrade an existing installation:
 
 ```bash
-npx --yes github:GendByteMaster/ForgeGuard install --force
+npx --yes --allow-git=all github:GendByteMaster/ForgeGuard install --force
 ```
 
 Uninstall:
 
 ```bash
-npx --yes github:GendByteMaster/ForgeGuard uninstall
+npx --yes --allow-git=all github:GendByteMaster/ForgeGuard uninstall
 ```
 
 ### Install for one client
 
 ```bash
-npx --yes github:GendByteMaster/ForgeGuard install --client codex
-npx --yes github:GendByteMaster/ForgeGuard install --client claude
-npx --yes github:GendByteMaster/ForgeGuard install --client cursor
+npx --yes --allow-git=all github:GendByteMaster/ForgeGuard install --client codex
+npx --yes --allow-git=all github:GendByteMaster/ForgeGuard install --client claude
+npx --yes --allow-git=all github:GendByteMaster/ForgeGuard install --client cursor
 ```
 
 ## `npx` vs a permanent `forgeguard` command
 
-`npx --yes github:GendByteMaster/ForgeGuard ...` is a **one-shot invocation**. It runs ForgeGuard for that command but does **not** permanently install `forgeguard` into your shell.
+`npx --yes --allow-git=all github:GendByteMaster/ForgeGuard ...` is a **one-shot invocation**. It runs ForgeGuard for that command but does **not** permanently install `forgeguard` into your shell.
 
 After an `npx` invocation, continue using the full form:
 
 ```bash
-npx --yes github:GendByteMaster/ForgeGuard install --client codex --subagents --global --force
-npx --yes github:GendByteMaster/ForgeGuard status --client codex --global
+npx --yes --allow-git=all github:GendByteMaster/ForgeGuard install --client codex --subagents --global --force
+npx --yes --allow-git=all github:GendByteMaster/ForgeGuard status --client codex --global
 ```
 
 If you want to type `forgeguard` directly, install the CLI globally from GitHub:
 
 ```bash
-npm install --global github:GendByteMaster/ForgeGuard
+npm install --global --allow-git=all github:GendByteMaster/ForgeGuard
 forgeguard --version
 ```
 
@@ -105,13 +105,13 @@ ForgeGuard's `--global` flag does **not** install the CLI itself.
 Project-level install:
 
 ```bash
-npx --yes github:GendByteMaster/ForgeGuard install --client codex
+npx --yes --allow-git=all github:GendByteMaster/ForgeGuard install --client codex
 ```
 
 User-level install:
 
 ```bash
-npx --yes github:GendByteMaster/ForgeGuard install --client codex --global
+npx --yes --allow-git=all github:GendByteMaster/ForgeGuard install --client codex --global
 ```
 
 Typical paths:
@@ -127,13 +127,13 @@ Typical paths:
 ForgeGuard does not change Codex runtime defaults during a normal install. Enable the optional Luna + Extra High preset explicitly:
 
 ```bash
-npx --yes github:GendByteMaster/ForgeGuard install --client codex --subagents
+npx --yes --allow-git=all github:GendByteMaster/ForgeGuard install --client codex --subagents
 ```
 
 For the user-level Codex configuration:
 
 ```bash
-npx --yes github:GendByteMaster/ForgeGuard install --client codex --subagents --global
+npx --yes --allow-git=all github:GendByteMaster/ForgeGuard install --client codex --subagents --global
 ```
 
 The preset manages:
@@ -337,7 +337,7 @@ forgeguard uninstall [--client all|codex|claude|cursor] [--global] [--no-agents]
 The `forgeguard` command above assumes a permanent CLI installation. When running directly from GitHub without installing the CLI, prefix the command with:
 
 ```text
-npx --yes github:GendByteMaster/ForgeGuard
+npx --yes --allow-git=all github:GendByteMaster/ForgeGuard
 ```
 
 The package requires Node.js 18 or newer and has no runtime dependencies.
@@ -345,7 +345,7 @@ The package requires Node.js 18 or newer and has no runtime dependencies.
 ### Keep Codex runtime config during uninstall
 
 ```bash
-npx --yes github:GendByteMaster/ForgeGuard uninstall --client codex --no-subagent-config
+npx --yes --allow-git=all github:GendByteMaster/ForgeGuard uninstall --client codex --no-subagent-config
 ```
 
 ## npm registry
@@ -415,3 +415,31 @@ engineering-guardrails/
 ## License
 
 MIT License. See [LICENSE](LICENSE).
+
+## npm 12 compatibility (EALLOWGIT)
+
+npm 12 denies Git-sourced packages by default. The examples use `--allow-git=all` before the package argument to opt in for one invocation only, without changing persistent configuration. It permits all Git dependencies in that invocation; use only trusted, reviewed sources. On older npm versions that do not recognize this option, omit it if Git fetching is permitted. See [npm configuration](https://docs.npmjs.com/cli/using-npm/config/#allow-git).
+
+```bash
+# Install
+npx --yes --allow-git=all github:GendByteMaster/ForgeGuard#v1.6.1 install --client codex --global
+# Upgrade existing installation
+npx --yes --allow-git=all github:GendByteMaster/ForgeGuard#v1.6.1 install --force --client codex --global
+# Verify installed Skill
+npx --yes --allow-git=all github:GendByteMaster/ForgeGuard#v1.6.1 status --client codex --global
+```
+
+Preserve the original client, scope and explicit runtime configuration choices when refreshing. Do not add --subagents unless runtime configuration is intended. Omit `--global` for project scope; restart the agent after updating.
+
+If Git fetching is prohibited, use Git and Node.js directly (from the intended target project, with a separate source checkout):
+
+```powershell
+$src = Join-Path $env:TEMP ("forgeguard-" + [guid]::NewGuid().ToString("N"))
+git clone --branch v1.6.1 --depth 1 https://github.com/GendByteMaster/ForgeGuard.git $src
+node "$src/bin/forgeguard.js" install --client codex --global
+# For an existing installation, use instead:
+# node "$src/bin/forgeguard.js" install --force --client codex --global
+node "$src/bin/forgeguard.js" status --client codex --global
+```
+
+The npm 12 option follows npm's documented configuration; live npm 12 execution is not yet verified here.
